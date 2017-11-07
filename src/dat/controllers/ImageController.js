@@ -10,7 +10,7 @@ class ImageController extends Controller {
     const defaultOptions = opts;
 
     this.__controlContainer = document.createElement('div');
-    this.addClass(this.__controlContainer, 'image-picker');
+    dom.addClass(this.__controlContainer, 'image-picker');
     this.__swatches = this.__controlContainer.appendChild(document.createElement('div'));
     dom.addClass(this.__swatches, 'image-swatches');
 
