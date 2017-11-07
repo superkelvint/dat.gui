@@ -45,6 +45,7 @@
     "rollup-plugin-sass": "^0.5.3",
     "rollup-plugin-uglify": "^2.0.1",
     "serve": "^6.4.8"
+    "wsgif": "^1.0.0"
   },
   "eslintConfig": {
     "extends": "airbnb-base",
