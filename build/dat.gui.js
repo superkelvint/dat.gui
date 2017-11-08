@@ -2699,7 +2699,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.__video.setAttribute('playsinline', true);
 	    _this.__input.type = 'file';
 	
-	    _this.updateDisplay();
+	    _this.__glGif = new _wsgif2.default({ gif: _this.__img });
+	
+	    _this.initializeValue();
 	
 	    _dom2.default.bind(_this.__camera, 'click', onCameraClick);
 	    _dom2.default.bind(_this.__plus, 'click', chooseImage);
@@ -2745,7 +2747,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    function videoStarted(localMediaStream) {
 	      this.setValue({
 	        type: 'video',
-	        value: URL.createObjectURL(localMediaStream)
+	        value: URL.createObjectURL(localMediaStream),
+	        domElement: this.__video
 	      });
 	    }
 	
@@ -2757,6 +2760,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.domElement.appendChild(_this.__controlContainer);
 	    return _this;
 	  }
+	
+	  ImageController.prototype.initializeValue = function initializeValue() {
+	    var asset = this.getValue();
+	    var isAnimated = asset.url.split('.').pop() === 'gif';
+	    if (asset.type === 'image' && isAnimated) {
+	      this.setValue({
+	        url: asset.url,
+	        type: asset.type,
+	        domElement: this.__glGif.get_canvas()
+	      });
+	    } else if (asset.type === 'image' && !isAnimated) {
+	      this.setValue({
+	        url: asset.url,
+	        type: asset.type,
+	        domElement: this.__img
+	      });
+	    } else if (asset.type === 'video') {
+	      this.setValue({
+	        url: asset.url,
+	        type: asset.type,
+	        domElement: this.__video
+	      });
+	    }
+	  };
 	
 	  ImageController.prototype.updateDisplay = function updateDisplay() {
 	    var asset = this.getValue();
@@ -2777,13 +2804,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
 	      this.setValue({
 	        url: _url,
-	        type: 'image'
+	        type: 'image',
+	        domElement: isAnimated ? this.__glGif.get_canvas() : this.__img
 	      });
 	      this.setImage(_url, isAnimated);
 	    } else if (type === 'video') {
 	      this.setValue({
 	        url: url,
-	        type: 'video'
+	        type: 'video',
+	        domElement: this.__video
 	      });
 	      this.setVideo(URL.createObjectUrl(file));
 	    }
@@ -2799,7 +2828,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.__video.src = '';
 	    this.__img.style.display = 'block';
 	    if (this.__isAnimated) {
-	      this.__glGif = new _wsgif2.default({ gif: this.__img });
 	      this.__glGif.load(function (err) {
 	        if (!err) {
 	          _this2._glGif.play();

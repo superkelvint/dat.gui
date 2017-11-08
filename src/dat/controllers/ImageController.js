@@ -40,7 +40,9 @@ class ImageController extends Controller {
     this.__video.setAttribute('playsinline', true);
     this.__input.type = 'file';
 
-    this.updateDisplay();
+    this.__glGif = new SuperGif({ gif: this.__img });
+
+    this.initializeValue();
 
     dom.bind(this.__camera, 'click', onCameraClick);
     dom.bind(this.__plus, 'click', chooseImage);
@@ -86,7 +88,8 @@ class ImageController extends Controller {
     function videoStarted(localMediaStream) {
       this.setValue({
         type: 'video',
-        value: URL.createObjectURL(localMediaStream)
+        value: URL.createObjectURL(localMediaStream),
+        domElement: this.__video
       });
     }
 
@@ -96,6 +99,30 @@ class ImageController extends Controller {
 
     // at the end
     this.domElement.appendChild(this.__controlContainer);
+  }
+
+  initializeValue() {
+    const asset = this.getValue();
+    const isAnimated = asset.url.split('.').pop() === 'gif';
+    if (asset.type === 'image' && isAnimated) {
+      this.setValue({
+        url: asset.url,
+        type: asset.type,
+        domElement: this.__glGif.get_canvas()
+      });
+    } else if (asset.type === 'image' && !isAnimated) {
+      this.setValue({
+        url: asset.url,
+        type: asset.type,
+        domElement: this.__img
+      });
+    } else if (asset.type === 'video') {
+      this.setValue({
+        url: asset.url,
+        type: asset.type,
+        domElement: this.__video
+      });
+    }
   }
 
   updateDisplay() {
@@ -117,13 +144,15 @@ class ImageController extends Controller {
       const isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
       this.setValue({
         url: url,
-        type: 'image'
+        type: 'image',
+        domElement: isAnimated ? this.__glGif.get_canvas() : this.__img
       });
       this.setImage(url, isAnimated);
     } else if (type === 'video') {
       this.setValue({
         url: url,
-        type: 'video'
+        type: 'video',
+        domElement: this.__video
       });
       this.setVideo(URL.createObjectUrl(file));
     }
@@ -137,7 +166,6 @@ class ImageController extends Controller {
     this.__video.src = '';
     this.__img.style.display = 'block';
     if (this.__isAnimated) {
-      this.__glGif = new SuperGif({ gif: this.__img });
       this.__glGif.load((err) => {
         if (!err) {
           this._glGif.play();
