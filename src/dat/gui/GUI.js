@@ -1119,7 +1119,7 @@ function add(gui, object, property, params) {
   if (params.color) {
     controller = new ColorController(object, property);
   } else if (params.image) {
-    controller = new ImageController(object, property, params.factoryArgs);
+    controller = new ImageController(object, property, params.factoryArgs[0]);
   } else {
     const factoryArgs = [object, property].concat(params.factoryArgs);
     controller = ControllerFactory.apply(gui, factoryArgs);

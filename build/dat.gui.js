@@ -5012,7 +5012,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (params.color) {
 	    controller = new _ColorController2.default(object, property);
 	  } else if (params.image) {
-	    controller = new _ImageController2.default(object, property, params.factoryArgs);
+	    controller = new _ImageController2.default(object, property, params.factoryArgs[0]);
 	  } else {
 	    var factoryArgs = [object, property].concat(params.factoryArgs);
 	    controller = _ControllerFactory2.default.apply(gui, factoryArgs);
