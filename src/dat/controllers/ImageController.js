@@ -115,18 +115,21 @@ class ImageController extends Controller {
     if (type === 'image') {
       const url = file.urlOverride || URL.createObjectUrl(file);
       const isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
+      this.setValue({
+        url: url,
+        type: 'image'
+      });
       this.setImage(url, isAnimated);
     } else if (type === 'video') {
+      this.setValue({
+        url: url,
+        type: 'video'
+      });
       this.setVideo(URL.createObjectUrl(file));
     }
   }
 
   setImage(url, isAnimated) {
-    this.setValue({
-      url: url,
-      type: 'image'
-    });
-    // const asset = this.getValue();
     this.__isVideo = false;
     this.__isAnimated = isAnimated;
     this.__img.src = url;
@@ -144,11 +147,6 @@ class ImageController extends Controller {
   }
 
   setVideo(url) {
-    this.setValue({
-      url: url,
-      type: 'video'
-    });
-    // const asset = this.getValue();
     this.__isVideo = true;
     this.__isAnimated = true;
     this.__video.src = url;

@@ -2773,10 +2773,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var type = file.type.split('/')[0];
 	    if (this.__glGif) this._glGif.pause();
 	    if (type === 'image') {
-	      var url = file.urlOverride || URL.createObjectUrl(file);
+	      var _url = file.urlOverride || URL.createObjectUrl(file);
 	      var isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
-	      this.setImage(url, isAnimated);
+	      this.setValue({
+	        url: _url,
+	        type: 'image'
+	      });
+	      this.setImage(_url, isAnimated);
 	    } else if (type === 'video') {
+	      this.setValue({
+	        url: url,
+	        type: 'video'
+	      });
 	      this.setVideo(URL.createObjectUrl(file));
 	    }
 	  };
@@ -2784,11 +2792,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  ImageController.prototype.setImage = function setImage(url, isAnimated) {
 	    var _this2 = this;
 	
-	    this.setValue({
-	      url: url,
-	      type: 'image'
-	    });
-	    // const asset = this.getValue();
 	    this.__isVideo = false;
 	    this.__isAnimated = isAnimated;
 	    this.__img.src = url;
@@ -2806,11 +2809,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	
 	  ImageController.prototype.setVideo = function setVideo(url) {
-	    this.setValue({
-	      url: url,
-	      type: 'video'
-	    });
-	    // const asset = this.getValue();
 	    this.__isVideo = true;
 	    this.__isAnimated = true;
 	    this.__video.src = url;
