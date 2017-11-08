@@ -95,7 +95,7 @@ class ImageController extends Controller {
     }
 
     // at the end
-    this.domElement.appendChild(/*this.__swatches?*/);
+    this.domElement.appendChild(this.__controlContainer);
   }
 
   updateDisplay() {

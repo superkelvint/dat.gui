@@ -2754,7 +2754,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    // at the end
-	    _this.domElement.appendChild();
+	    _this.domElement.appendChild(_this.__controlContainer);
 	    return _this;
 	  }
 	
