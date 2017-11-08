@@ -2858,7 +2858,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _dom2.default.bind(swatch, 'click', function () {
 	      if (videoSrc) {
+	        _this3.setValue({
+	          url: videoSrc,
+	          type: 'video',
+	          domElement: _this3.__video
+	        });
 	        _this3.setVideo(videoSrc);
+	      } else {
+	        var isAnimated = src.split('.').pop() === 'gif';
+	        if (isAnimated) {
+	          _this3.setValue({
+	            url: src,
+	            type: 'image',
+	            domElement: _this3.__glGif.get_canvas()
+	          });
+	        } else {
+	          _this3.setValue({
+	            url: src,
+	            type: 'image',
+	            domElement: _this3.__img
+	          });
+	        }
 	      }
 	    });
 	  };

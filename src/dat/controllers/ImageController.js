@@ -194,7 +194,27 @@ class ImageController extends Controller {
 
     dom.bind(swatch, 'click', () => {
       if (videoSrc) {
+        this.setValue({
+          url: videoSrc,
+          type: 'video',
+          domElement: this.__video
+        });
         this.setVideo(videoSrc);
+      } else {
+        const isAnimated = src.split('.').pop() === 'gif';
+        if (isAnimated) {
+          this.setValue({
+            url: src,
+            type: 'image',
+            domElement: this.__glGif.get_canvas()
+          });
+        } else {
+          this.setValue({
+            url: src,
+            type: 'image',
+            domElement: this.__img
+          });
+        }
       }
     });
   }
