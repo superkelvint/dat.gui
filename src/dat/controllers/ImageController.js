@@ -15,7 +15,7 @@ class ImageController extends Controller {
     dom.addClass(this.__swatches, 'image-swatches');
 
     this.__img = this.__controlContainer.appendChild(document.createElement('img'));
-    this.__image.crossOrigin = 'anonymous';
+    this.__img.crossOrigin = 'anonymous';
 
     this.__video = this.__controlContainer.appendChild(document.createElement('video'));
     this.__input = this.__controlContainer.appendChild(document.createElement('input'));

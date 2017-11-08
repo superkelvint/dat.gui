@@ -2674,7 +2674,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _dom2.default.addClass(_this.__swatches, 'image-swatches');
 	
 	    _this.__img = _this.__controlContainer.appendChild(document.createElement('img'));
-	    _this.__image.crossOrigin = 'anonymous';
+	    _this.__img.crossOrigin = 'anonymous';
 	
 	    _this.__video = _this.__controlContainer.appendChild(document.createElement('video'));
 	    _this.__input = _this.__controlContainer.appendChild(document.createElement('input'));
