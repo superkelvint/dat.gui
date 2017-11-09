@@ -86,11 +86,13 @@ class ImageController extends Controller {
     }
 
     function videoStarted(localMediaStream) {
+      const url = URL.createObjectURL(localMediaStream);
       this.setValue({
         type: 'video',
         value: URL.createObjectURL(localMediaStream),
         domElement: this.__video
       });
+      this.setVideo(url);
     }
 
     function videoError(error) {

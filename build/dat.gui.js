@@ -2743,11 +2743,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    function videoStarted(localMediaStream) {
+	      var url = URL.createObjectURL(localMediaStream);
 	      this.setValue({
 	        type: 'video',
 	        value: URL.createObjectURL(localMediaStream),
 	        domElement: this.__video
 	      });
+	      this.setVideo(url);
 	    }
 	
 	    function videoError(error) {
