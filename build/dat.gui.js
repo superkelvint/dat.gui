@@ -2800,7 +2800,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var type = file.type.split('/')[0];
 	    if (this.__glGif) this.__glGif.pause();
 	    if (type === 'image') {
-	      var _url = file.urlOverride || URL.createObjectUrl(file);
+	      var _url = file.urlOverride || URL.createObjectURL(file);
 	      var isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
 	      this.setValue({
 	        url: _url,
@@ -2814,7 +2814,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        type: 'video',
 	        domElement: this.__video
 	      });
-	      this.setVideo(URL.createObjectUrl(file));
+	      this.setVideo(URL.createObjectURL(file));
 	    }
 	  };
 	

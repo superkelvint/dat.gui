@@ -140,7 +140,7 @@ class ImageController extends Controller {
     const type = file.type.split('/')[0];
     if (this.__glGif) this.__glGif.pause();
     if (type === 'image') {
-      const url = file.urlOverride || URL.createObjectUrl(file);
+      const url = file.urlOverride || URL.createObjectURL(file);
       const isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
       this.setValue({
         url: url,
@@ -154,7 +154,7 @@ class ImageController extends Controller {
         type: 'video',
         domElement: this.__video
       });
-      this.setVideo(URL.createObjectUrl(file));
+      this.setVideo(URL.createObjectURL(file));
     }
   }
 
