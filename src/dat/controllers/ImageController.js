@@ -82,7 +82,7 @@ class ImageController extends Controller {
     }
 
     function onCameraClick() {
-      navigator.getUserMedia({ video: true }, videoStarted, videoError);
+      navigator.getUserMedia({ video: true }, videoStarted.bind(this), videoError.bind(this));
     }
 
     function videoStarted(localMediaStream) {
