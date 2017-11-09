@@ -230,6 +230,11 @@ $button-height: 20px;
     overflow: visible;
   }
 
+  /** make image selector row taller */
+  .cr.image {
+    height: 100px;
+  }
+
   .selector {
     display: none;
     position: absolute;

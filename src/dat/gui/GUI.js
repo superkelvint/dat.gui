@@ -1146,6 +1146,8 @@ function add(gui, object, property, params) {
   dom.addClass(li, GUI.CLASS_CONTROLLER_ROW);
   if (controller instanceof ColorController) {
     dom.addClass(li, 'color');
+  } else if (controller instanceof ImageController) {
+    dom.addClass(li, 'image');
   } else {
     dom.addClass(li, typeof controller.getValue());
   }
