@@ -2703,16 +2703,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _this.initializeValue();
 	
-	    _dom2.default.bind(_this.__camera, 'click', onCameraClick);
-	    _dom2.default.bind(_this.__plus, 'click', chooseImage);
-	    _dom2.default.bind(_this.__input, 'change', inputChange);
+	    _dom2.default.bind(_this.__camera, 'click', onCameraClick.bind(_this));
+	    _dom2.default.bind(_this.__plus, 'click', chooseImage.bind(_this));
+	    _dom2.default.bind(_this.__input, 'change', inputChange.bind(_this));
 	
-	    _dom2.default.bind(_this.__img, 'dragover', onDragOver);
-	    _dom2.default.bind(_this.__img, 'dragleave', onDragLeave);
-	    _dom2.default.bind(_this.__img, 'drop', onDrop);
-	    _dom2.default.bind(_this.__video, 'dragover', onDragOver);
-	    _dom2.default.bind(_this.__video, 'dragleave', onDragLeave);
-	    _dom2.default.bind(_this.__video, 'drop', onDrop);
+	    _dom2.default.bind(_this.__img, 'dragover', onDragOver.bind(_this));
+	    _dom2.default.bind(_this.__img, 'dragleave', onDragLeave.bind(_this));
+	    _dom2.default.bind(_this.__img, 'drop', onDrop.bind(_this));
+	    _dom2.default.bind(_this.__video, 'dragover', onDragOver.bind(_this));
+	    _dom2.default.bind(_this.__video, 'dragleave', onDragLeave.bind(_this));
+	    _dom2.default.bind(_this.__video, 'drop', onDrop.bind(_this));
 	
 	    function chooseImage() {
 	      this.__input.click();

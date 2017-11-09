@@ -44,16 +44,16 @@ class ImageController extends Controller {
 
     this.initializeValue();
 
-    dom.bind(this.__camera, 'click', onCameraClick);
-    dom.bind(this.__plus, 'click', chooseImage);
-    dom.bind(this.__input, 'change', inputChange);
+    dom.bind(this.__camera, 'click', onCameraClick.bind(this));
+    dom.bind(this.__plus, 'click', chooseImage.bind(this));
+    dom.bind(this.__input, 'change', inputChange.bind(this));
 
-    dom.bind(this.__img, 'dragover', onDragOver);
-    dom.bind(this.__img, 'dragleave', onDragLeave);
-    dom.bind(this.__img, 'drop', onDrop);
-    dom.bind(this.__video, 'dragover', onDragOver);
-    dom.bind(this.__video, 'dragleave', onDragLeave);
-    dom.bind(this.__video, 'drop', onDrop);
+    dom.bind(this.__img, 'dragover', onDragOver.bind(this));
+    dom.bind(this.__img, 'dragleave', onDragLeave.bind(this));
+    dom.bind(this.__img, 'drop', onDrop.bind(this));
+    dom.bind(this.__video, 'dragover', onDragOver.bind(this));
+    dom.bind(this.__video, 'dragleave', onDragLeave.bind(this));
+    dom.bind(this.__video, 'drop', onDrop.bind(this));
 
     function chooseImage() {
       this.__input.click();
