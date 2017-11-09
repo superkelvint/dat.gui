@@ -1,7 +1,7 @@
 import SuperGif from 'wsgif';
 import Controller from './Controller';
 import dom from '../dom/dom';
-import getUserMedia from '../utils/getUserMedia';
+import '../utils/getUserMedia';
 
 class ImageController extends Controller {
   constructor(object, property, opts) {
@@ -20,7 +20,7 @@ class ImageController extends Controller {
     this.__video = this.__controlContainer.appendChild(document.createElement('video'));
     this.__input = this.__controlContainer.appendChild(document.createElement('input'));
 
-    if (getUserMedia) {
+    if (navigator.getUserMedia) {
       this.__camera = this.__swatches.appendChild(document.createElement('div'));
       this.__camera.innerHTML = '&nbsp';
       dom.addClass(this.__camera, 'camera-button swatch');
@@ -82,7 +82,7 @@ class ImageController extends Controller {
     }
 
     function onCameraClick() {
-      getUserMedia({ video: true }, videoStarted, videoError);
+      navigator.getUserMedia({ video: true }, videoStarted, videoError);
     }
 
     function videoStarted(localMediaStream) {

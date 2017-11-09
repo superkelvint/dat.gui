@@ -2646,9 +2646,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _dom2 = _interopRequireDefault(_dom);
 	
-	var _getUserMedia = __webpack_require__(22);
-	
-	var _getUserMedia2 = _interopRequireDefault(_getUserMedia);
+	__webpack_require__(22);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2679,7 +2677,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.__video = _this.__controlContainer.appendChild(document.createElement('video'));
 	    _this.__input = _this.__controlContainer.appendChild(document.createElement('input'));
 	
-	    if (_getUserMedia2.default) {
+	    if (navigator.getUserMedia) {
 	      _this.__camera = _this.__swatches.appendChild(document.createElement('div'));
 	      _this.__camera.innerHTML = '&nbsp';
 	      _dom2.default.addClass(_this.__camera, 'camera-button swatch');
@@ -2741,7 +2739,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    function onCameraClick() {
-	      (0, _getUserMedia2.default)({ video: true }, videoStarted, videoError);
+	      navigator.getUserMedia({ video: true }, videoStarted, videoError);
 	    }
 	
 	    function videoStarted(localMediaStream) {
@@ -3982,9 +3980,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	"use strict";
 	
-	exports.__esModule = true;
-	exports.default = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-	module.exports = exports["default"];
+	navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
 
 /***/ },
 /* 23 */
