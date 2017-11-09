@@ -138,7 +138,7 @@ class ImageController extends Controller {
   parseFile(file) {
     // is there a better way to get the mime type?
     const type = file.type.split('/')[0];
-    if (this.__glGif) this._glGif.pause();
+    if (this.__glGif) this.__glGif.pause();
     if (type === 'image') {
       const url = file.urlOverride || URL.createObjectUrl(file);
       const isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
@@ -168,7 +168,7 @@ class ImageController extends Controller {
     if (this.__isAnimated) {
       this.__glGif.load((err) => {
         if (!err) {
-          this._glGif.play();
+          this.__glGif.play();
         }
       });
     }

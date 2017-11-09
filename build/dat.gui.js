@@ -2798,7 +2798,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  ImageController.prototype.parseFile = function parseFile(file) {
 	    // is there a better way to get the mime type?
 	    var type = file.type.split('/')[0];
-	    if (this.__glGif) this._glGif.pause();
+	    if (this.__glGif) this.__glGif.pause();
 	    if (type === 'image') {
 	      var _url = file.urlOverride || URL.createObjectUrl(file);
 	      var isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
@@ -2830,7 +2830,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (this.__isAnimated) {
 	      this.__glGif.load(function (err) {
 	        if (!err) {
-	          _this2._glGif.play();
+	          _this2.__glGif.play();
 	        }
 	      });
 	    }
