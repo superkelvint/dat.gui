@@ -106,13 +106,13 @@ class ImageController extends Controller {
   initializeValue() {
     const asset = this.getValue();
     const isAnimated = asset.url.split('.').pop() === 'gif';
-    if (asset.type === 'image' && isAnimated) {
+    if (asset.type === 'gif') {
       this.setValue({
         url: asset.url,
         type: asset.type,
         domElement: this.__glGif.get_canvas()
       });
-    } else if (asset.type === 'image' && !isAnimated) {
+    } else if (asset.type === 'image') {
       this.setValue({
         url: asset.url,
         type: asset.type,
@@ -130,8 +130,9 @@ class ImageController extends Controller {
   updateDisplay() {
     const asset = this.getValue();
     if (asset.type === 'image') {
-      const isAnimated = asset.url.split('.').pop() === 'gif';
-      this.setImage(asset.url, isAnimated);
+      this.setImage(asset.url, false);
+    } else if (asset.type ==='gif') {
+      this.setImage(asset.url, true);
     } else if (asset.type === 'video') {
       this.setVideo(asset.url);
     }
@@ -144,11 +145,19 @@ class ImageController extends Controller {
     if (type === 'image') {
       const url = file.urlOverride || URL.createObjectURL(file);
       const isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
-      this.setValue({
-        url: url,
-        type: 'image',
-        domElement: isAnimated ? this.__glGif.get_canvas() : this.__img
-      });
+      if (isAnimated) {
+        this.setValue({
+          url: url,
+          type: 'gif',
+          domElement: this.__glGif.get_canvas()
+        });
+      } else {
+        this.setValue({
+          url: url,
+          type: 'image',
+          domElement: this.__img
+        });
+      }
       this.setImage(url, isAnimated);
     } else if (type === 'video') {
       this.setValue({
@@ -207,7 +216,7 @@ class ImageController extends Controller {
         if (isAnimated) {
           this.setValue({
             url: src,
-            type: 'image',
+            type: 'gif',
             domElement: this.__glGif.get_canvas()
           });
         } else {
