@@ -41,6 +41,7 @@ class ImageController extends Controller {
     this.__input.type = 'file';
 
     this.__glGif = new SuperGif({ gif: this.__img });
+    this.__glGif.load();
 
     this.initializeValue();
 
