@@ -34,7 +34,9 @@ class ImageController extends Controller {
       this.addSwatch(option.src, option.videoSrc);
     });
 
-    this.__video.className = this.__img.className = 'content';
+    // this.__video.className = this.__img.className = 'content';
+    dom.addClass(this.__img, 'content');
+    dom.addClass(this.__video, 'content');
     this.__video.crossOrigin = 'anonymous';
     // should this be //webkit-playsinline?
     // as of iOS10 you don't need the prefix

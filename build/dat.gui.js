@@ -2691,7 +2691,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	      _this.addSwatch(option.src, option.videoSrc);
 	    });
 	
-	    _this.__video.className = _this.__img.className = 'content';
+	    // this.__video.className = this.__img.className = 'content';
+	    _dom2.default.addClass(_this.__img, 'content');
+	    _dom2.default.addClass(_this.__video, 'content');
 	    _this.__video.crossOrigin = 'anonymous';
 	    // should this be //webkit-playsinline?
 	    // as of iOS10 you don't need the prefix
