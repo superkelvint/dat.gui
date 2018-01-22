@@ -41,7 +41,7 @@ class ImageController extends Controller {
     this.__input.type = 'file';
 
     this.__glGif = new SuperGif({ gif: this.__img });
-    this.__glGif.load((err) => console.log(err));
+    this.__glGif.load();
 
     this.initializeValue();
 
@@ -106,7 +106,7 @@ class ImageController extends Controller {
 
   initializeValue() {
     const asset = this.getValue();
-    const isAnimated = asset.url.split('.').pop() === 'gif';
+    // const isAnimated = asset.url.split('.').pop() === 'gif';
     if (asset.type === 'gif') {
       this.setValue({
         url: asset.url,
@@ -132,7 +132,7 @@ class ImageController extends Controller {
     const asset = this.getValue();
     if (asset.type === 'image') {
       this.setImage(asset.url, false);
-    } else if (asset.type ==='gif') {
+    } else if (asset.type === 'gif') {
       this.setImage(asset.url, true);
     } else if (asset.type === 'video') {
       this.setVideo(asset.url);

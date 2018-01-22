@@ -2698,6 +2698,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.__input.type = 'file';
 	
 	    _this.__glGif = new _wsgif2.default({ gif: _this.__img });
+	    _this.__glGif.load();
 	
 	    _this.initializeValue();
 	
@@ -2763,14 +2764,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  ImageController.prototype.initializeValue = function initializeValue() {
 	    var asset = this.getValue();
-	    var isAnimated = asset.url.split('.').pop() === 'gif';
-	    if (asset.type === 'image' && isAnimated) {
+	    // const isAnimated = asset.url.split('.').pop() === 'gif';
+	    if (asset.type === 'gif') {
 	      this.setValue({
 	        url: asset.url,
 	        type: asset.type,
 	        domElement: this.__glGif.get_canvas()
 	      });
-	    } else if (asset.type === 'image' && !isAnimated) {
+	    } else if (asset.type === 'image') {
 	      this.setValue({
 	        url: asset.url,
 	        type: asset.type,
@@ -2788,8 +2789,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  ImageController.prototype.updateDisplay = function updateDisplay() {
 	    var asset = this.getValue();
 	    if (asset.type === 'image') {
-	      var isAnimated = asset.url.split('.').pop() === 'gif';
-	      this.setImage(asset.url, isAnimated);
+	      this.setImage(asset.url, false);
+	    } else if (asset.type === 'gif') {
+	      this.setImage(asset.url, true);
 	    } else if (asset.type === 'video') {
 	      this.setVideo(asset.url);
 	    }
@@ -2802,11 +2804,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (type === 'image') {
 	      var _url = file.urlOverride || URL.createObjectURL(file);
 	      var isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
-	      this.setValue({
-	        url: _url,
-	        type: 'image',
-	        domElement: isAnimated ? this.__glGif.get_canvas() : this.__img
-	      });
+	      if (isAnimated) {
+	        this.setValue({
+	          url: _url,
+	          type: 'gif',
+	          domElement: this.__glGif.get_canvas()
+	        });
+	      } else {
+	        this.setValue({
+	          url: _url,
+	          type: 'image',
+	          domElement: this.__img
+	        });
+	      }
 	      this.setImage(_url, isAnimated);
 	    } else if (type === 'video') {
 	      this.setValue({
@@ -2869,7 +2879,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (isAnimated) {
 	          _this3.setValue({
 	            url: src,
-	            type: 'image',
+	            type: 'gif',
 	            domElement: _this3.__glGif.get_canvas()
 	          });
 	        } else {
