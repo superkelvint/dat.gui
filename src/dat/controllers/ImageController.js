@@ -41,7 +41,6 @@ class ImageController extends Controller {
     this.__input.type = 'file';
 
     this.__glGif = new SuperGif({ gif: this.__img });
-    this.__glGif.load();
 
     this.initializeValue();
 
@@ -181,6 +180,11 @@ class ImageController extends Controller {
       this.__glGif.load((err) => {
         if (!err) {
           this.__glGif.play();
+          this.setValue({
+            url: url,
+            type: 'gif',
+            domElement: this.__glGif.get_canvas()
+          });
         }
       });
     }
