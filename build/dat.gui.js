@@ -2701,6 +2701,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.__gifImg.crossOrigin = 'anonymous';
 	    _dom2.default.addClass(_this.__gifImg, 'content');
 	    _this.__glGif = new _wsgif2.default({ gif: _this.__gifImg });
+	    _this.__gifNeedsInitializing = true;
 	    // this.__glGif.load();
 	
 	    _this.initializeValue();
@@ -2769,11 +2770,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var asset = this.getValue();
 	    // const isAnimated = asset.url.split('.').pop() === 'gif';
 	    if (asset.type === 'gif') {
-	      this.setValue({
-	        url: asset.url,
-	        type: asset.type,
-	        domElement: this.__glGif.get_canvas()
-	      });
+	      if (this.__gifNeedsInitializing) {
+	        this.setImage(url, true);
+	      } else {
+	        this.setValue({
+	          url: asset.url,
+	          type: asset.type,
+	          domElement: this.__glGif.get_canvas()
+	        });
+	      }
 	    } else if (asset.type === 'image') {
 	      this.setValue({
 	        url: asset.url,
@@ -2808,11 +2813,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var _url = file.urlOverride || URL.createObjectURL(file);
 	      var isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
 	      if (isAnimated) {
-	        this.setValue({
-	          url: _url,
-	          type: 'gif',
-	          domElement: this.__glGif.get_canvas()
-	        });
+	        if (this.__gifNeedsInitializing) {
+	          this.setImage(_url, true);
+	        } else {
+	          this.setValue({
+	            url: _url,
+	            type: 'gif',
+	            domElement: this.__glGif.get_canvas()
+	          });
+	        }
 	      } else {
 	        this.setValue({
 	          url: _url,
@@ -2840,14 +2849,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	      this.__img.src = '';
 	      this.__img.style.display = 'none';
 	      this.__gifImg.src = url;
-	      // this.__glGif.get_canvas().style.display = 'block';
+	      this.__glGif.get_canvas().style.display = 'block';
 	      this.__glGif.load(function (err) {
 	        if (!err) {
 	          _this2.__glGif.play();
+	          if (_this2.__gifNeedsInitializing) {
+	            _this2.setValue({
+	              url: url,
+	              type: 'gif',
+	              domElement: _this2.__glGif.get_canvas()
+	            });
+	            _this2.__gifNeedsInitializing = false;
+	          }
 	        }
 	      });
 	    } else {
-	      // this.__glGif.get_canvas().style.display = 'none';
+	      this.__glGif.get_canvas().style.display = 'none';
 	      this.__img.src = url;
 	      this.__img.style.display = 'block';
 	    }
@@ -2864,7 +2881,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.__video.volume = 0;
 	    this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
 	    this.__img.style.display = 'none';
-	    // this.__glGif.get_canvas().style.display = 'none';
+	    this.__glGif.get_canvas().style.display = 'none';
 	    this.__video.style.display = 'block';
 	  };
 	
@@ -2887,11 +2904,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	      } else {
 	        var isAnimated = src.split('.').pop() === 'gif';
 	        if (isAnimated) {
-	          _this3.setValue({
-	            url: src,
-	            type: 'gif',
-	            domElement: _this3.__glGif.get_canvas()
-	          });
+	          if (_this3.__gifNeedsInitializing) {
+	            _this3.setImage(url, true);
+	          } else {
+	            _this3.setValue({
+	              url: src,
+	              type: 'gif',
+	              domElement: _this3.__glGif.get_canvas()
+	            });
+	          }
 	        } else {
 	          _this3.setValue({
 	            url: src,

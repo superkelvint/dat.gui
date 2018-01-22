@@ -44,6 +44,7 @@ class ImageController extends Controller {
     this.__gifImg.crossOrigin = 'anonymous';
     dom.addClass(this.__gifImg, 'content');
     this.__glGif = new SuperGif({ gif: this.__gifImg });
+    this.__gifNeedsInitializing = true;
     // this.__glGif.load();
 
     this.initializeValue();
@@ -111,11 +112,15 @@ class ImageController extends Controller {
     const asset = this.getValue();
     // const isAnimated = asset.url.split('.').pop() === 'gif';
     if (asset.type === 'gif') {
-      this.setValue({
-        url: asset.url,
-        type: asset.type,
-        domElement: this.__glGif.get_canvas()
-      });
+      if (this.__gifNeedsInitializing) {
+        this.setImage(url, true);
+      } else {
+        this.setValue({
+          url: asset.url,
+          type: asset.type,
+          domElement: this.__glGif.get_canvas()
+        });
+      }
     } else if (asset.type === 'image') {
       this.setValue({
         url: asset.url,
@@ -150,11 +155,15 @@ class ImageController extends Controller {
       const url = file.urlOverride || URL.createObjectURL(file);
       const isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
       if (isAnimated) {
-        this.setValue({
-          url: url,
-          type: 'gif',
-          domElement: this.__glGif.get_canvas()
-        });
+        if (this.__gifNeedsInitializing) {
+          this.setImage(url, true);
+        } else {
+          this.setValue({
+            url: url,
+            type: 'gif',
+            domElement: this.__glGif.get_canvas()
+          });
+        }
       } else {
         this.setValue({
           url: url,
@@ -180,14 +189,22 @@ class ImageController extends Controller {
       this.__img.src = '';
       this.__img.style.display = 'none';
       this.__gifImg.src = url;
-      // this.__glGif.get_canvas().style.display = 'block';
+      this.__glGif.get_canvas().style.display = 'block';
       this.__glGif.load((err) => {
         if (!err) {
           this.__glGif.play();
+          if (this.__gifNeedsInitializing) {
+            this.setValue({
+              url: url,
+              type: 'gif',
+              domElement: this.__glGif.get_canvas()
+            });
+            this.__gifNeedsInitializing = false;
+          }
         }
       });
     } else {
-      // this.__glGif.get_canvas().style.display = 'none';
+      this.__glGif.get_canvas().style.display = 'none';
       this.__img.src = url;
       this.__img.style.display = 'block';
     }
@@ -204,7 +221,7 @@ class ImageController extends Controller {
     this.__video.volume = 0;
     this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
     this.__img.style.display = 'none';
-    // this.__glGif.get_canvas().style.display = 'none';
+    this.__glGif.get_canvas().style.display = 'none';
     this.__video.style.display = 'block';
   }
 
@@ -225,11 +242,15 @@ class ImageController extends Controller {
       } else {
         const isAnimated = src.split('.').pop() === 'gif';
         if (isAnimated) {
-          this.setValue({
-            url: src,
-            type: 'gif',
-            domElement: this.__glGif.get_canvas()
-          });
+          if (this.__gifNeedsInitializing) {
+            this.setImage(url, true);
+          } else {
+            this.setValue({
+              url: src,
+              type: 'gif',
+              domElement: this.__glGif.get_canvas()
+            });
+          }
         } else {
           this.setValue({
             url: src,
