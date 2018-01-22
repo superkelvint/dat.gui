@@ -2673,6 +2673,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _this.__img = _this.__controlContainer.appendChild(document.createElement('img'));
 	    _this.__img.crossOrigin = 'anonymous';
+	    _dom2.default.addClass(_this.__image, 'image-element');
 	
 	    _this.__video = _this.__controlContainer.appendChild(document.createElement('video'));
 	    _this.__input = _this.__controlContainer.appendChild(document.createElement('input'));
