@@ -2673,7 +2673,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _this.__img = _this.__controlContainer.appendChild(document.createElement('img'));
 	    _this.__img.crossOrigin = 'anonymous';
-	    _dom2.default.addClass(_this.__img, 'image-element');
 	
 	    _this.__video = _this.__controlContainer.appendChild(document.createElement('video'));
 	    _this.__input = _this.__controlContainer.appendChild(document.createElement('input'));
@@ -2691,17 +2690,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	      _this.addSwatch(option.src, option.videoSrc);
 	    });
 	
-	    // this.__video.className = this.__img.className = 'content';
-	    _dom2.default.addClass(_this.__img, 'content');
-	    _dom2.default.addClass(_this.__video, 'content');
+	    _this.__video.className = _this.__img.className = 'content';
 	    _this.__video.crossOrigin = 'anonymous';
 	    // should this be //webkit-playsinline?
 	    // as of iOS10 you don't need the prefix
 	    _this.__video.setAttribute('playsinline', true);
 	    _this.__input.type = 'file';
 	
-	    _this.__glGif = new _wsgif2.default({ gif: _this.__img });
-	    // this.__glGif.load();
+	    _this.__gifImg = _this.__controlContainer.appendChild(document.createElement('img'));
+	    _this.__gifImg.crossOrigin = 'anonymous';
+	    _dom2.default.addClass(_this.__gifImg, 'content');
+	    _this.__glGif = new _wsgif2.default({ gif: _this.__gifImg });
+	    _this.__glGif.load();
 	
 	    _this.initializeValue();
 	
@@ -2836,17 +2836,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    this.__isVideo = false;
 	    this.__isAnimated = isAnimated;
-	    this.__img.src = url;
-	    this.__video.style.display = 'none';
-	    this.__video.src = '';
-	    this.__img.style.display = 'block';
-	    if (this.__isAnimated) {
+	    if (isAnimated) {
+	      this.__img.src = '';
+	      this.__img.style.display = 'none';
+	      this.__gifImg.src = url;
+	      this.__glGif.get_canvas().style.display = 'block';
 	      this.__glGif.load(function (err) {
 	        if (!err) {
 	          _this2.__glGif.play();
 	        }
 	      });
+	    } else {
+	      this.__glGif.get_canvas().style.display = 'none';
+	      this.__img.src = url;
+	      this.__img.style.display = 'block';
 	    }
+	    this.__video.style.display = 'none';
+	    this.__video.src = '';
 	  };
 	
 	  ImageController.prototype.setVideo = function setVideo(url) {
@@ -2858,6 +2864,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.__video.volume = 0;
 	    this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
 	    this.__img.style.display = 'none';
+	    this.__glGif.get_canvas().style.display = 'none';
 	    this.__video.style.display = 'block';
 	  };
 	

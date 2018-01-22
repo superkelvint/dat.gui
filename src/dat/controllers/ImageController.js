@@ -16,7 +16,6 @@ class ImageController extends Controller {
 
     this.__img = this.__controlContainer.appendChild(document.createElement('img'));
     this.__img.crossOrigin = 'anonymous';
-    dom.addClass(this.__img, 'image-element');
 
     this.__video = this.__controlContainer.appendChild(document.createElement('video'));
     this.__input = this.__controlContainer.appendChild(document.createElement('input'));
@@ -34,17 +33,18 @@ class ImageController extends Controller {
       this.addSwatch(option.src, option.videoSrc);
     });
 
-    // this.__video.className = this.__img.className = 'content';
-    dom.addClass(this.__img, 'content');
-    dom.addClass(this.__video, 'content');
+    this.__video.className = this.__img.className = 'content';
     this.__video.crossOrigin = 'anonymous';
     // should this be //webkit-playsinline?
     // as of iOS10 you don't need the prefix
     this.__video.setAttribute('playsinline', true);
     this.__input.type = 'file';
 
-    this.__glGif = new SuperGif({ gif: this.__img });
-    // this.__glGif.load();
+    this.__gifImg = this.__controlContainer.appendChild(document.createElement('img'));
+    this.__gifImg.crossOrigin = 'anonymous';
+    dom.addClass(this.__gifImg, 'content');
+    this.__glGif = new SuperGif({ gif: this.__gifImg });
+    this.__glGif.load();
 
     this.initializeValue();
 
@@ -176,17 +176,23 @@ class ImageController extends Controller {
   setImage(url, isAnimated) {
     this.__isVideo = false;
     this.__isAnimated = isAnimated;
-    this.__img.src = url;
-    this.__video.style.display = 'none';
-    this.__video.src = '';
-    this.__img.style.display = 'block';
-    if (this.__isAnimated) {
+    if (isAnimated) {
+      this.__img.src = '';
+      this.__img.style.display = 'none';
+      this.__gifImg.src = url;
+      this.__glGif.get_canvas().style.display = 'block';
       this.__glGif.load((err) => {
         if (!err) {
           this.__glGif.play();
         }
       });
+    } else {
+      this.__glGif.get_canvas().style.display = 'none';
+      this.__img.src = url;
+      this.__img.style.display = 'block';
     }
+    this.__video.style.display = 'none';
+    this.__video.src = '';
   }
 
   setVideo(url) {
@@ -198,6 +204,7 @@ class ImageController extends Controller {
     this.__video.volume = 0;
     this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
     this.__img.style.display = 'none';
+    this.__glGif.get_canvas().style.display = 'none';
     this.__video.style.display = 'block';
   }
 
