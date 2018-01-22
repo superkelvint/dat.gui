@@ -2698,7 +2698,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.__input.type = 'file';
 	
 	    _this.__glGif = new _wsgif2.default({ gif: _this.__img });
-	    _this.__glGif.load();
+	    // this.__glGif.load();
 	
 	    _this.initializeValue();
 	
