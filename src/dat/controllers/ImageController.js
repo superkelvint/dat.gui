@@ -180,14 +180,14 @@ class ImageController extends Controller {
       this.__img.src = '';
       this.__img.style.display = 'none';
       this.__gifImg.src = url;
-      this.__glGif.get_canvas().style.display = 'block';
+      // this.__glGif.get_canvas().style.display = 'block';
       this.__glGif.load((err) => {
         if (!err) {
           this.__glGif.play();
         }
       });
     } else {
-      this.__glGif.get_canvas().style.display = 'none';
+      // this.__glGif.get_canvas().style.display = 'none';
       this.__img.src = url;
       this.__img.style.display = 'block';
     }
@@ -204,7 +204,7 @@ class ImageController extends Controller {
     this.__video.volume = 0;
     this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
     this.__img.style.display = 'none';
-    this.__glGif.get_canvas().style.display = 'none';
+    // this.__glGif.get_canvas().style.display = 'none';
     this.__video.style.display = 'block';
   }
 
