@@ -44,7 +44,7 @@ class ImageController extends Controller {
     this.__gifImg.crossOrigin = 'anonymous';
     dom.addClass(this.__gifImg, 'content');
     this.__glGif = new SuperGif({ gif: this.__gifImg });
-    this.__glGif.load();
+    // this.__glGif.load();
 
     this.initializeValue();
 

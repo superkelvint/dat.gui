@@ -2701,7 +2701,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _this.__gifImg.crossOrigin = 'anonymous';
 	    _dom2.default.addClass(_this.__gifImg, 'content');
 	    _this.__glGif = new _wsgif2.default({ gif: _this.__gifImg });
-	    _this.__glGif.load();
+	    // this.__glGif.load();
 	
 	    _this.initializeValue();
 	
