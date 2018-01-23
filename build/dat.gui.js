@@ -2843,6 +2843,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  ImageController.prototype.setImage = function setImage(url, isAnimated) {
 	    var _this2 = this;
 	
+	    if (this.__skipSetImage) {
+	      this.__skipSetImage = false;
+	      return;
+	    }
 	    this.__isVideo = false;
 	    this.__isAnimated = isAnimated;
 	    if (isAnimated) {
@@ -2856,12 +2860,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (!err) {
 	          _this2.__glGif.play();
 	          if (_this2.__gifNeedsInitializing) {
+	            // only want to call this if the canvas hasn't been initialized yet
+	            // but don't want to call setImage again
+	            // could have a variable to skip setImage once?
+	
 	            _this2.setValue({
 	              url: url,
 	              type: 'gif',
 	              domElement: _this2.__glGif.get_canvas()
 	            });
 	            _this2.__gifNeedsInitializing = false;
+	            _this2.__skipSetImage = true;
 	          }
 	        }
 	      });

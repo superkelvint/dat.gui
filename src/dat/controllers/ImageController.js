@@ -183,6 +183,10 @@ class ImageController extends Controller {
   }
 
   setImage(url, isAnimated) {
+    if (this.__skipSetImage) {
+      this.__skipSetImage = false;
+      return;
+    }
     this.__isVideo = false;
     this.__isAnimated = isAnimated;
     if (isAnimated) {
@@ -196,12 +200,17 @@ class ImageController extends Controller {
         if (!err) {
           this.__glGif.play();
           if (this.__gifNeedsInitializing) {
+            // only want to call this if the canvas hasn't been initialized yet
+            // but don't want to call setImage again
+            // could have a variable to skip setImage once?
+
             this.setValue({
               url: url,
               type: 'gif',
               domElement: this.__glGif.get_canvas()
             });
             this.__gifNeedsInitializing = false;
+            this.__skipSetImage = true;
           }
         }
       });
