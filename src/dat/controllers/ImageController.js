@@ -113,7 +113,7 @@ class ImageController extends Controller {
     // const isAnimated = asset.url.split('.').pop() === 'gif';
     if (asset.type === 'gif') {
       if (this.__gifNeedsInitializing) {
-        this.setImage(url, true);
+        this.setImage(asset.url, true);
       } else {
         this.setValue({
           url: asset.url,
