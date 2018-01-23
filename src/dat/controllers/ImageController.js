@@ -170,8 +170,8 @@ class ImageController extends Controller {
           type: 'image',
           domElement: this.__img
         });
+        this.setImage(url, false);
       }
-      this.setImage(url, isAnimated);
     } else if (type === 'video') {
       this.setValue({
         url: url,

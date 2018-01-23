@@ -2828,8 +2828,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	          type: 'image',
 	          domElement: this.__img
 	        });
+	        this.setImage(_url, false);
 	      }
-	      this.setImage(_url, isAnimated);
 	    } else if (type === 'video') {
 	      this.setValue({
 	        url: url,
