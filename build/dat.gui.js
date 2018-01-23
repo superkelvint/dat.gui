@@ -2864,13 +2864,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            // but don't want to call setImage again
 	            // could have a variable to skip setImage once?
 	
+	            _this2.__gifNeedsInitializing = false;
+	            _this2.__skipSetImage = true;
 	            _this2.setValue({
 	              url: url,
 	              type: 'gif',
 	              domElement: _this2.__glGif.get_canvas()
 	            });
-	            _this2.__gifNeedsInitializing = false;
-	            _this2.__skipSetImage = true;
 	          }
 	        }
 	      });

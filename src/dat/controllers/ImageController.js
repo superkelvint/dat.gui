@@ -204,13 +204,13 @@ class ImageController extends Controller {
             // but don't want to call setImage again
             // could have a variable to skip setImage once?
 
+            this.__gifNeedsInitializing = false;
+            this.__skipSetImage = true;
             this.setValue({
               url: url,
               type: 'gif',
               domElement: this.__glGif.get_canvas()
             });
-            this.__gifNeedsInitializing = false;
-            this.__skipSetImage = true;
           }
         }
       });
