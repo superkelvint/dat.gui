@@ -17,6 +17,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import cleanup from 'rollup-plugin-cleanup';
 import babel from 'rollup-plugin-babel';
 import sass from 'rollup-plugin-sass';
+import commonjs from 'rollup-plugin-commonjs';
 
 const banner = fs.readFileSync(path.join(__dirname, 'licenseBanner.txt'));
 
@@ -47,6 +48,9 @@ export default {
     babel({
       plugins: ['external-helpers'],
       exclude: 'node_modules/**'
+    }),
+    commonjs({
+      'node_modules/wsgif/sibgif.js': [ 'SuperGif' ]
     }),
     cleanup()
   ]

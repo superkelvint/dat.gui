@@ -1530,6 +1530,1047 @@ function hueGradient(elem) {
   elem.style.cssText += 'background: linear-gradient(top,  #ff0000 0%,#ff00ff 17%,#0000ff 34%,#00ffff 50%,#00ff00 67%,#ffff00 84%,#ff0000 100%);';
 }
 
+var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+
+
+
+
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var Stream = function (data) {
+    this.data = data;
+    this.len = this.data.length;
+    this.pos = 0;
+    this.readByte = function () {
+        if (this.pos >= this.data.length) {
+            throw new Error('Attempted to read past end of stream.');
+        }
+        if (data instanceof Uint8Array)
+            return data[this.pos++];
+        else
+            return data.charCodeAt(this.pos++) & 0xFF;
+    };
+    this.readBytes = function (n) {
+        var bytes = [];
+        for (var i = 0; i < n; i++) {
+            bytes.push(this.readByte());
+        }
+        return bytes;
+    };
+    this.read = function (n) {
+        var s = '';
+        for (var i = 0; i < n; i++) {
+            s += String.fromCharCode(this.readByte());
+        }
+        return s;
+    };
+    this.readUnsigned = function () {
+        var a = this.readBytes(2);
+        return (a[1] << 8) + a[0];
+    };
+};
+var Stream_1 = Stream;
+
+var lzwDecode = function (minCodeSize, data) {
+    var pos = 0;
+    var readCode = function (size) {
+        var code = 0;
+        for (var i = 0; i < size; i++) {
+            if (data[pos >> 3] & (1 << (pos & 7))) {
+                code |= 1 << i;
+            }
+            pos++;
+        }
+        return code;
+    };
+    var clearCode = 1 << minCodeSize;
+    var eoiCode = clearCode + 1;
+    var codeSize = minCodeSize + 1;
+    var outputBlockSize = 4096,
+        bufferBlockSize = 4096;
+    var output = new Uint8Array(outputBlockSize),
+        buffer = new Uint8Array(bufferBlockSize),
+        dict = [];
+    var bufferOffset = 0,
+        outputOffset = 0;
+    var fill = function () {
+        for (var i = 0; i < clearCode; i++) {
+            dict[i] = new Uint8Array(1);
+            dict[i][0] = i;
+        }
+        dict[clearCode] = new Uint8Array(0);
+        dict[eoiCode] = null;
+    };
+    var clear = function () {
+        var keep = clearCode + 2;
+        dict.splice(keep, dict.length - keep);
+        codeSize = minCodeSize + 1;
+        bufferOffset = 0;
+    };
+    var enlargeOutput = function() {
+        var outputSize = output.length + outputBlockSize;
+        var newoutput = new Uint8Array(outputSize);
+        newoutput.set(output);
+        output = newoutput;
+        outputBlockSize = outputBlockSize << 1;
+    };
+    var enlargeBuffer = function() {
+        var bufferSize = buffer.length + bufferBlockSize;
+        var newbuffer = new Uint8Array(bufferSize);
+        newbuffer.set(buffer);
+        buffer = newbuffer;
+        bufferBlockSize = bufferBlockSize << 1;
+    };
+    var pushCode = function(code, last) {
+        var newlength = dict[last].byteLength + 1;
+        while (bufferOffset + newlength > buffer.length) enlargeBuffer();
+        var newdict = buffer.subarray(bufferOffset, bufferOffset + newlength);
+        newdict.set(dict[last]);
+        newdict[newlength-1] = dict[code][0];
+        bufferOffset += newlength;
+        dict.push(newdict);
+    };
+    var code;
+    var last;
+    fill();
+    while (true) {
+        last = code;
+        code = readCode(codeSize);
+        if (code === clearCode) {
+            clear();
+            continue;
+        }
+        if (code === eoiCode) break;
+        if (code < dict.length) {
+            if (last !== clearCode) {
+                pushCode(code, last);
+            }
+        }
+        else {
+            if (code !== dict.length) throw new Error('Invalid LZW code.');
+            pushCode(last, last);
+        }
+        var newsize = dict[code].length;
+        while (outputOffset + newsize > output.length) enlargeOutput();
+        output.set(dict[code], outputOffset);
+        outputOffset += newsize;
+        if (dict.length === (1 << codeSize) && codeSize < 12) {
+            codeSize++;
+        }
+    }
+    return output.subarray(0, outputOffset);
+};
+var lzwDecode_1 = lzwDecode;
+
+var bitsToNum = function (ba) {
+    return ba.reduce(function (s, n) {
+        return s * 2 + n;
+    }, 0);
+};
+var byteToBitArr = function (bite) {
+    var a = [];
+    for (var i = 7; i >= 0; i--) {
+        a.push( !! (bite & (1 << i)));
+    }
+    return a;
+};
+var parseGIF = function (st, handler) {
+    handler || (handler = {});
+    var parseCT = function (entries) {
+        var ct = [];
+        for (var i = 0; i < entries; i++) {
+            ct.push(st.readBytes(3));
+        }
+        return ct;
+    };
+    var readSubBlocks = function () {
+        var size, data, offset = 0;
+        var bufsize = 8192;
+        data = new Uint8Array(bufsize);
+        var resizeBuffer = function() {
+            var newdata = new Uint8Array(data.length + bufsize);
+            newdata.set(data);
+            data = newdata;
+        };
+        do {
+            size = st.readByte();
+            while (offset + size > data.length) resizeBuffer();
+            data.set(st.readBytes(size), offset);
+            offset += size;
+        } while (size !== 0);
+        return data.subarray(0, offset);
+    };
+    var parseHeader = function () {
+        var hdr = {};
+        hdr.sig = st.read(3);
+        hdr.ver = st.read(3);
+        if (hdr.sig !== 'GIF') throw new Error('Not a GIF file.');
+        hdr.width = st.readUnsigned();
+        hdr.height = st.readUnsigned();
+        var bits = byteToBitArr(st.readByte());
+        hdr.gctFlag = bits.shift();
+        hdr.colorRes = bitsToNum(bits.splice(0, 3));
+        hdr.sorted = bits.shift();
+        hdr.gctSize = bitsToNum(bits.splice(0, 3));
+        hdr.bgColor = st.readByte();
+        hdr.pixelAspectRatio = st.readByte();
+        if (hdr.gctFlag) {
+            hdr.gct = parseCT(1 << (hdr.gctSize + 1));
+        }
+        handler.hdr && handler.hdr(hdr);
+    };
+    var parseExt = function (block) {
+        var parseGCExt = function (block) {
+            var blockSize = st.readByte();
+            var bits = byteToBitArr(st.readByte());
+            block.reserved = bits.splice(0, 3);
+            block.disposalMethod = bitsToNum(bits.splice(0, 3));
+            block.userInput = bits.shift();
+            block.transparencyGiven = bits.shift();
+            block.delayTime = st.readUnsigned();
+            block.transparencyIndex = st.readByte();
+            block.terminator = st.readByte();
+            handler.gce && handler.gce(block);
+        };
+        var parseComExt = function (block) {
+            block.comment = readSubBlocks();
+            handler.com && handler.com(block);
+        };
+        var parsePTExt = function (block) {
+            var blockSize = st.readByte();
+            block.ptHeader = st.readBytes(12);
+            block.ptData = readSubBlocks();
+            handler.pte && handler.pte(block);
+        };
+        var parseAppExt = function (block) {
+            var parseNetscapeExt = function (block) {
+                var blockSize = st.readByte();
+                block.unknown = st.readByte();
+                block.iterations = st.readUnsigned();
+                block.terminator = st.readByte();
+                handler.app && handler.app.NETSCAPE && handler.app.NETSCAPE(block);
+            };
+            var parseUnknownAppExt = function (block) {
+                block.appData = readSubBlocks();
+                handler.app && handler.app[block.identifier] && handler.app[block.identifier](block);
+            };
+            var blockSize = st.readByte();
+            block.identifier = st.read(8);
+            block.authCode = st.read(3);
+            switch (block.identifier) {
+                case 'NETSCAPE':
+                    parseNetscapeExt(block);
+                    break;
+                default:
+                    parseUnknownAppExt(block);
+                    break;
+            }
+        };
+        var parseUnknownExt = function (block) {
+            block.data = readSubBlocks();
+            handler.unknown && handler.unknown(block);
+        };
+        block.label = st.readByte();
+        switch (block.label) {
+            case 0xF9:
+                block.extType = 'gce';
+                parseGCExt(block);
+                break;
+            case 0xFE:
+                block.extType = 'com';
+                parseComExt(block);
+                break;
+            case 0x01:
+                block.extType = 'pte';
+                parsePTExt(block);
+                break;
+            case 0xFF:
+                block.extType = 'app';
+                parseAppExt(block);
+                break;
+            default:
+                block.extType = 'unknown';
+                parseUnknownExt(block);
+                break;
+        }
+    };
+    var parseImg = function (img) {
+        var deinterlace = function (pixels, width) {
+            var newPixels = new Array(pixels.length);
+            var rows = pixels.length / width;
+            var cpRow = function (toRow, fromRow) {
+                var fromPixels = pixels.slice(fromRow * width, (fromRow + 1) * width);
+                newPixels.splice.apply(newPixels, [toRow * width, width].concat(fromPixels));
+            };
+            var offsets = [0, 4, 2, 1];
+            var steps = [8, 8, 4, 2];
+            var fromRow = 0;
+            for (var pass = 0; pass < 4; pass++) {
+                for (var toRow = offsets[pass]; toRow < rows; toRow += steps[pass]) {
+                    cpRow(toRow, fromRow);
+                    fromRow++;
+                }
+            }
+            return newPixels;
+        };
+        img.leftPos = st.readUnsigned();
+        img.topPos = st.readUnsigned();
+        img.width = st.readUnsigned();
+        img.height = st.readUnsigned();
+        var bits = byteToBitArr(st.readByte());
+        img.lctFlag = bits.shift();
+        img.interlaced = bits.shift();
+        img.sorted = bits.shift();
+        img.reserved = bits.splice(0, 2);
+        img.lctSize = bitsToNum(bits.splice(0, 3));
+        if (img.lctFlag) {
+            img.lct = parseCT(1 << (img.lctSize + 1));
+        }
+        img.lzwMinCodeSize = st.readByte();
+        var lzwData = readSubBlocks();
+        img.pixels = lzwDecode_1(img.lzwMinCodeSize, lzwData);
+        if (img.interlaced) {
+            img.pixels = deinterlace(img.pixels, img.width);
+        }
+        handler.img && handler.img(img);
+    };
+    var parseBlock = function () {
+        var block = {};
+        block.sentinel = st.readByte();
+        switch (String.fromCharCode(block.sentinel)) {
+            case '!':
+                block.type = 'ext';
+                parseExt(block);
+                break;
+            case ',':
+                block.type = 'img';
+                parseImg(block);
+                break;
+            case ';':
+                block.type = 'eof';
+                handler.eof && handler.eof(block);
+                break;
+            default:
+                throw new Error('Unknown block: 0x' + block.sentinel.toString(16));
+        }
+        if (block.type !== 'eof') setTimeout(parseBlock, 0);
+    };
+    var parse = function () {
+        parseHeader();
+        setTimeout(parseBlock, 0);
+    };
+    parse();
+};
+var parseGif = parseGIF;
+
+var sibgif = createCommonjsModule(function (module, exports) {
+(function (root, factory) {
+    if (typeof undefined === 'function' && undefined.amd) {
+        undefined([], factory);
+    } else {
+        module.exports = factory();
+    }
+}(commonjsGlobal, function () {
+    {
+        var Stream = Stream_1;
+        var parseGIF = parseGif;
+    }
+    var SuperGif = function ( opts ) {
+        var options = {
+            vp_l: 0,
+            vp_t: 0,
+            vp_w: null,
+            vp_h: null,
+            c_w: null,
+            c_h: null
+        };
+        for (var i in opts ) { options[i] = opts[i]; }
+        if (options.vp_w && options.vp_h) options.is_vp = true;
+        var stream;
+        var hdr;
+        var loadError = null;
+        var loading = false;
+        var transparency = null;
+        var delay = null;
+        var disposalMethod = null;
+        var disposalRestoreFromIdx = null;
+        var lastDisposalMethod = null;
+        var frame = null;
+        var lastImg = null;
+        var playing = true;
+        var forward = true;
+        var ctx_scaled = false;
+        var frames = [];
+        var frameOffsets = [];
+        var gif = options.gif;
+        if (typeof options.gif == 'undefined' && !!options.url) {
+            gif = document.createElement('img');
+            gif.src = options.url;
+        }
+        if (typeof options.auto_play == 'undefined')
+            options.auto_play = (!gif.getAttribute('data-autoplay') || gif.getAttribute('data-autoplay') == '1');
+        var onEndListener = (options.hasOwnProperty('on_end') ? options.on_end : null);
+        var loopDelay = (options.hasOwnProperty('loop_delay') ? options.loop_delay : 0);
+        var overrideLoopMode = (options.hasOwnProperty('loop_mode') ? options.loop_mode : 'auto');
+        var drawWhileLoading = (options.hasOwnProperty('draw_while_loading') ? options.draw_while_loading : true);
+        var showProgressBar = drawWhileLoading ? (options.hasOwnProperty('show_progress_bar') ? options.show_progress_bar : true) : false;
+        var progressBarHeight = (options.hasOwnProperty('progressbar_height') ? options.progressbar_height : 25);
+        var progressBarBackgroundColor = (options.hasOwnProperty('progressbar_background_color') ? options.progressbar_background_color : 'rgba(255,255,255,0.4)');
+        var progressBarForegroundColor = (options.hasOwnProperty('progressbar_foreground_color') ? options.progressbar_foreground_color : 'rgba(255,0,22,.8)');
+        var clear = function () {
+            transparency = null;
+            delay = null;
+            lastDisposalMethod = disposalMethod;
+            disposalMethod = null;
+            frame = null;
+        };
+        var handler = function () {
+            return {
+                hdr: withProgress(doHdr),
+                gce: withProgress(doGCE),
+                com: withProgress(doNothing),
+                app: {
+                    NETSCAPE: withProgress(doNothing)
+                },
+                img: withProgress(doImg, true),
+                eof: function (block) {
+                    pushFrame();
+                    doDecodeProgress(false);
+                    if ( ! (options.c_w && options.c_h) ) {
+                        canvas.width = hdr.width * get_canvas_scale();
+                        canvas.height = hdr.height * get_canvas_scale();
+                    }
+                    player.init();
+                    loading = false;
+                    if (load_callback) {
+                        load_callback(loadError, gif);
+                    }
+                }
+            };
+        };
+        var doParse = function () {
+            try {
+                parseGIF(stream, handler());
+            }
+            catch (err) {
+                doLoadError('parse');
+            }
+        };
+        var setSizes = function(w, h) {
+            canvas.width = w * get_canvas_scale();
+            canvas.height = h * get_canvas_scale();
+            toolbar.style.minWidth = ( w * get_canvas_scale() ) + 'px';
+            tmpCanvas.width = w;
+            tmpCanvas.height = h;
+            tmpCanvas.style.width = w + 'px';
+            tmpCanvas.style.height = h + 'px';
+            tmpCanvas.getContext('2d').setTransform(1, 0, 0, 1, 0, 0);
+        };
+        var setFrameOffset = function(frame, offset) {
+            if (!frameOffsets[frame]) {
+                frameOffsets[frame] = offset;
+                return;
+            }
+            if (typeof offset.x !== 'undefined') {
+                frameOffsets[frame].x = offset.x;
+            }
+            if (typeof offset.y !== 'undefined') {
+                frameOffsets[frame].y = offset.y;
+            }
+        };
+        var doShowProgress = function (pos, length, draw) {
+            if (draw && showProgressBar) {
+                var height = progressBarHeight;
+                var left, mid, top, width;
+                if (options.is_vp) {
+                    if (!ctx_scaled) {
+                        top = (options.vp_t + options.vp_h - height);
+                        height = height;
+                        left = options.vp_l;
+                        mid = left + (pos / length) * options.vp_w;
+                        width = canvas.width;
+                    } else {
+                        top = (options.vp_t + options.vp_h - height) / get_canvas_scale();
+                        height = height / get_canvas_scale();
+                        left = (options.vp_l / get_canvas_scale() );
+                        mid = left + (pos / length) * (options.vp_w / get_canvas_scale());
+                        width = canvas.width / get_canvas_scale();
+                    }
+                }
+                else {
+                    top = (canvas.height - height) / (ctx_scaled ? get_canvas_scale() : 1);
+                    mid = ((pos / length) * canvas.width) / (ctx_scaled ? get_canvas_scale() : 1);
+                    width = canvas.width / (ctx_scaled ? get_canvas_scale() : 1 );
+                    height /= ctx_scaled ? get_canvas_scale() : 1;
+                }
+                ctx.fillStyle = progressBarBackgroundColor;
+                ctx.fillRect(mid, top, width - mid, height);
+                ctx.fillStyle = progressBarForegroundColor;
+                ctx.fillRect(0, top, mid, height);
+            }
+        };
+        var doLoadError = function (originOfError) {
+            var drawError = function () {
+                ctx.fillStyle = 'black';
+                ctx.fillRect(0, 0, options.c_w ? options.c_w : hdr.width, options.c_h ? options.c_h : hdr.height);
+                ctx.strokeStyle = 'red';
+                ctx.lineWidth = 3;
+                ctx.moveTo(0, 0);
+                ctx.lineTo(options.c_w ? options.c_w : hdr.width, options.c_h ? options.c_h : hdr.height);
+                ctx.moveTo(0, options.c_h ? options.c_h : hdr.height);
+                ctx.lineTo(options.c_w ? options.c_w : hdr.width, 0);
+                ctx.stroke();
+            };
+            loadError = originOfError;
+            hdr = {
+                width: gif.width,
+                height: gif.height
+            };
+            frames = [];
+            drawError();
+        };
+        var doHdr = function (_hdr) {
+            hdr = _hdr;
+            setSizes(hdr.width, hdr.height);
+        };
+        var doGCE = function (gce) {
+            pushFrame();
+            clear();
+            transparency = gce.transparencyGiven ? gce.transparencyIndex : null;
+            delay = gce.delayTime;
+            disposalMethod = gce.disposalMethod;
+        };
+        var pushFrame = function () {
+            if (!frame) return;
+            var newFrame = {
+                data: frame.getImageData(0, 0, hdr.width, hdr.height),
+                delay: delay
+            };
+            if (options.includeDataURL) {
+                newFrame.dataURL = tmpCanvas.toDataURL();
+            }
+            frames.push(newFrame);
+            frameOffsets.push({ x: 0, y: 0 });
+        };
+        var doImg = function (img) {
+            if (!frame) frame = tmpCanvas.getContext('2d');
+            var currIdx = frames.length;
+            var ct = img.lctFlag ? img.lct : hdr.gct;
+            if (currIdx > 0) {
+                if (lastDisposalMethod === 3) {
+                    if (disposalRestoreFromIdx !== null) {
+                        frame.putImageData(frames[disposalRestoreFromIdx].data, 0, 0);
+                    } else {
+                        frame.clearRect(lastImg.leftPos, lastImg.topPos, lastImg.width, lastImg.height);
+                    }
+                } else {
+                    disposalRestoreFromIdx = currIdx - 1;
+                }
+                if (lastDisposalMethod === 2) {
+                    frame.clearRect(lastImg.leftPos, lastImg.topPos, lastImg.width, lastImg.height);
+                }
+            }
+            var imgData = frame.getImageData(img.leftPos, img.topPos, img.width, img.height);
+            for (var i = 0; i < img.pixels.length; i++) {
+                var pixel = img.pixels[i];
+                  if (pixel !== transparency) {
+                    var pix = ct[pixel];
+                    var idx = i * 4;
+                    imgData.data[idx    ] = pix[0];
+                    imgData.data[idx + 1] = pix[1];
+                    imgData.data[idx + 2] = pix[2];
+                    imgData.data[idx + 3] = 255;
+                  }
+            }
+            frame.putImageData(imgData, img.leftPos, img.topPos);
+            if (!ctx_scaled) {
+                ctx.scale(get_canvas_scale(),get_canvas_scale());
+                ctx_scaled = true;
+            }
+            if (drawWhileLoading) {
+                ctx.drawImage(tmpCanvas, 0, 0);
+                drawWhileLoading = options.auto_play;
+            }
+            lastImg = img;
+        };
+        var player = (function () {
+            var i = -1;
+            var iterationCount = 0;
+            var getNextFrameNo = function () {
+                var delta = (forward ? 1 : -1);
+                return (i + delta + frames.length) % frames.length;
+            };
+            var stepFrame = function (amount) {
+                i = i + amount;
+                putFrame();
+            };
+            var step = (function () {
+                var stepping = false;
+                var completeLoop = function () {
+                    if (onEndListener !== null)
+                        onEndListener(gif);
+                    iterationCount++;
+                    if (overrideLoopMode !== false || iterationCount < 0) {
+                        doStep();
+                    } else {
+                        stepping = false;
+                        playing = false;
+                    }
+                };
+                var doStep = function () {
+                    stepping = playing;
+                    if (!stepping) return;
+                    stepFrame(1);
+                    var delay = frames[i].delay * 10;
+                    if (!delay) delay = 100;
+                    var nextFrameNo = getNextFrameNo();
+                    if (nextFrameNo === 0) {
+                        delay += loopDelay;
+                        setTimeout(completeLoop, delay);
+                    } else {
+                        setTimeout(doStep, delay);
+                    }
+                };
+                return function () {
+                    if (!stepping) setTimeout(doStep, 0);
+                };
+            }());
+            var putFrame = function () {
+                var offset;
+                i = parseInt(i, 10);
+                if (i > frames.length - 1){
+                    i = 0;
+                }
+                if (i < 0){
+                    i = 0;
+                }
+                offset = frameOffsets[i];
+                tmpCanvas.getContext("2d").putImageData(frames[i].data, offset.x, offset.y);
+                ctx.globalCompositeOperation = "copy";
+                ctx.drawImage(tmpCanvas, 0, 0);
+            };
+            var play = function () {
+                playing = true;
+                step();
+            };
+            var pause = function () {
+                playing = false;
+            };
+            return {
+                init: function () {
+                    if (loadError) return;
+                    if ( ! (options.c_w && options.c_h) ) {
+                        ctx.scale(get_canvas_scale(),get_canvas_scale());
+                    }
+                    if (options.auto_play) {
+                        step();
+                    }
+                    else {
+                        i = 0;
+                        putFrame();
+                    }
+                },
+                step: step,
+                play: play,
+                pause: pause,
+                playing: playing,
+                move_relative: stepFrame,
+                current_frame: function() { return i; },
+                frames: function() { return frames },
+                length: function() { return frames.length },
+                move_to: function ( frame_idx ) {
+                    i = frame_idx;
+                    putFrame();
+                }
+            }
+        }());
+        var doDecodeProgress = function (draw) {
+            doShowProgress(stream.pos, stream.data.length, draw);
+        };
+        var doNothing = function () {};
+        var withProgress = function (fn, draw) {
+            return function (block) {
+                fn(block);
+                doDecodeProgress(draw);
+            };
+        };
+        var init = function () {
+            var parent = gif.parentNode;
+            var div = document.createElement('div');
+            canvas = document.createElement('canvas');
+            ctx = canvas.getContext('2d');
+            toolbar = document.createElement('div');
+            tmpCanvas = document.createElement('canvas');
+            div.width = canvas.width = gif.width;
+            div.height = canvas.height = gif.height;
+            toolbar.style.minWidth = gif.width + 'px';
+            div.className = 'jsgif';
+            toolbar.className = 'jsgif_toolbar';
+            div.appendChild(canvas);
+            div.appendChild(toolbar);
+            if (parent) {
+                parent.insertBefore(div, gif);
+                parent.removeChild(gif);
+            }
+            if (options.c_w && options.c_h) setSizes(options.c_w, options.c_h);
+            initialized=true;
+        };
+        var get_canvas_scale = function() {
+            var scale;
+            if (options.max_width && hdr && hdr.width > options.max_width) {
+                scale = options.max_width / hdr.width;
+            }
+            else {
+                scale = 1;
+            }
+            return scale;
+        };
+        var canvas, ctx, toolbar, tmpCanvas;
+        var initialized = false;
+        var load_callback = false;
+        var load_setup = function(callback) {
+            if (loading) return false;
+            if (callback) {
+                load_callback = callback;
+            } else {
+                load_callback = false;
+            }
+            loading = true;
+            frames = [];
+            clear();
+            disposalRestoreFromIdx = null;
+            lastDisposalMethod = null;
+            frame = null;
+            lastImg = null;
+            return true;
+        };
+        return {
+            play: player.play,
+            pause: player.pause,
+            move_relative: player.move_relative,
+            move_to: player.move_to,
+            get_frames       : function() { return player.frames() },
+            get_playing      : function() { return playing },
+            get_canvas       : function() { return canvas },
+            get_canvas_scale : function() { return get_canvas_scale() },
+            get_loading      : function() { return loading },
+            get_auto_play    : function() { return options.auto_play },
+            get_length       : function() { return player.length() },
+            get_current_frame: function() { return player.current_frame() },
+            load_url: function(src,callback){
+                if (!load_setup(callback)) return;
+                var h = new XMLHttpRequest();
+                h.open('GET', src, true);
+                if ('overrideMimeType' in h) {
+                    h.overrideMimeType('text/plain; charset=x-user-defined');
+                }
+                else if ('responseType' in h) {
+                    h.responseType = 'arraybuffer';
+                }
+                else {
+                    h.setRequestHeader('Accept-Charset', 'x-user-defined');
+                }
+                h.onloadstart = function() {
+                    if (!initialized) init();
+                };
+                h.onload = function(e) {
+                    if (this.status != 200) {
+                        doLoadError('xhr - response');
+                    }
+                    if (!('response' in this)) {
+                        this.response = new VBArray(this.responseText).toArray().map(String.fromCharCode).join('');
+                    }
+                    var data = this.response;
+                    if (data instanceof ArrayBuffer) {
+                        data = new Uint8Array(data);
+                    }
+                    stream = new Stream(data);
+                    setTimeout(doParse, 0);
+                };
+                h.onprogress = function (e) {
+                    if (e.lengthComputable) doShowProgress(e.loaded, e.total, true);
+                };
+                h.onerror = function() { doLoadError('xhr'); };
+                h.send();
+            },
+            load: function (callback) {
+                this.load_url(gif.getAttribute('data-animated-src') || gif.src,callback);
+            },
+            load_raw: function(arr, callback) {
+                if (!load_setup(callback)) return;
+                if (!initialized) init();
+                stream = new Stream(arr);
+                setTimeout(doParse, 0);
+            },
+            set_frame_offset: setFrameOffset
+        };
+    };
+    return SuperGif;
+}));
+});
+
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+var ImageController = function (_Controller) {
+  inherits(ImageController, _Controller);
+  function ImageController(object, property, opts) {
+    classCallCheck(this, ImageController);
+    var _this = possibleConstructorReturn(this, (ImageController.__proto__ || Object.getPrototypeOf(ImageController)).call(this, object, property));
+    var defaultOptions = opts;
+    _this.__controlContainer = document.createElement('div');
+    dom.addClass(_this.__controlContainer, 'image-picker');
+    _this.__swatches = _this.__controlContainer.appendChild(document.createElement('div'));
+    dom.addClass(_this.__swatches, 'image-swatches');
+    _this.__img = _this.__controlContainer.appendChild(document.createElement('img'));
+    _this.__img.crossOrigin = 'anonymous';
+    _this.__video = _this.__controlContainer.appendChild(document.createElement('video'));
+    _this.__input = _this.__controlContainer.appendChild(document.createElement('input'));
+    if (navigator.getUserMedia) {
+      _this.__camera = _this.__swatches.appendChild(document.createElement('div'));
+      _this.__camera.innerHTML = '&nbsp';
+      dom.addClass(_this.__camera, 'camera-button swatch');
+    }
+    _this.__plus = _this.__swatches.appendChild(document.createElement('div'));
+    dom.addClass(_this.__plus, 'new-image-button swatch');
+    _this.__plus.innerHTML = '&nbsp';
+    defaultOptions.forEach(function (option) {
+      _this.addSwatch(option.src, option.videoSrc);
+    });
+    _this.__video.className = _this.__img.className = 'content';
+    _this.__video.crossOrigin = 'anonymous';
+    _this.__video.setAttribute('playsinline', true);
+    _this.__input.type = 'file';
+    _this.__gifImg = _this.__controlContainer.appendChild(document.createElement('img'));
+    _this.__gifImg.crossOrigin = 'anonymous';
+    dom.addClass(_this.__gifImg, 'content');
+    _this.__glGif = new sibgif({ gif: _this.__gifImg });
+    _this.__gifNeedsInitializing = true;
+    _this.initializeValue();
+    dom.bind(_this.__camera, 'click', onCameraClick.bind(_this));
+    dom.bind(_this.__plus, 'click', chooseImage.bind(_this));
+    dom.bind(_this.__input, 'change', inputChange.bind(_this));
+    dom.bind(_this.__img, 'dragover', onDragOver.bind(_this));
+    dom.bind(_this.__img, 'dragleave', onDragLeave.bind(_this));
+    dom.bind(_this.__img, 'drop', onDrop.bind(_this));
+    dom.bind(_this.__video, 'dragover', onDragOver.bind(_this));
+    dom.bind(_this.__video, 'dragleave', onDragLeave.bind(_this));
+    dom.bind(_this.__video, 'drop', onDrop.bind(_this));
+    function chooseImage() {
+      this.__input.click();
+    }
+    function inputChange(e) {
+      var file = e.target.files[0];
+      file.isSaved = false;
+      this.parseFile(file);
+    }
+    function onDragOver(e) {
+      e.preventDefault();
+      e.target.classList.add('dragover');
+    }
+    function onDragLeave(e) {
+      e.target.classList.remove('dragover');
+    }
+    function onDrop(e) {
+      e.target.classList.remove('dragover');
+      var file = e.originalEvent.dataTransfer.files[0];
+      file.isSaved = false;
+      this.parseFile(file);
+    }
+    function onCameraClick() {
+      navigator.getUserMedia({ video: true }, videoStarted.bind(this), videoError.bind(this));
+    }
+    function videoStarted(localMediaStream) {
+      var url = URL.createObjectURL(localMediaStream);
+      this.setValue({
+        type: 'video',
+        value: URL.createObjectURL(localMediaStream),
+        domElement: this.__video
+      });
+      this.setVideo(url);
+    }
+    function videoError(error) {
+      console.log(error);
+    }
+    _this.domElement.appendChild(_this.__controlContainer);
+    return _this;
+  }
+  createClass(ImageController, [{
+    key: 'initializeValue',
+    value: function initializeValue() {
+      var asset = this.getValue();
+      if (asset.type === 'gif') {
+        if (this.__gifNeedsInitializing) {
+          this.setImage(asset.url, true);
+        } else {
+          this.setValue({
+            url: asset.url,
+            type: asset.type,
+            domElement: this.__glGif.get_canvas()
+          });
+        }
+      } else if (asset.type === 'image') {
+        this.setValue({
+          url: asset.url,
+          type: asset.type,
+          domElement: this.__img
+        });
+      } else if (asset.type === 'video') {
+        this.setValue({
+          url: asset.url,
+          type: asset.type,
+          domElement: this.__video
+        });
+      }
+    }
+  }, {
+    key: 'updateDisplay',
+    value: function updateDisplay() {
+      var asset = this.getValue();
+      if (asset.type === 'image') {
+        this.setImage(asset.url, false);
+      } else if (asset.type === 'gif') {
+        this.setImage(asset.url, true);
+      } else if (asset.type === 'video') {
+        this.setVideo(asset.url);
+      }
+    }
+  }, {
+    key: 'parseFile',
+    value: function parseFile(file) {
+      var type = file.type.split('/')[0];
+      if (this.__glGif) this.__glGif.pause();
+      if (type === 'image') {
+        var _url = file.urlOverride || URL.createObjectURL(file);
+        var isAnimated = file.type.split('/')[1] === 'gif' || file.animatedOverride;
+        if (isAnimated) {
+          if (this.__gifNeedsInitializing) {
+            this.setImage(_url, true);
+          } else {
+            this.setValue({
+              url: _url,
+              type: 'gif',
+              domElement: this.__glGif.get_canvas()
+            });
+          }
+        } else {
+          this.setValue({
+            url: _url,
+            type: 'image',
+            domElement: this.__img
+          });
+          this.setImage(_url, false);
+        }
+      } else if (type === 'video') {
+        this.setValue({
+          url: url,
+          type: 'video',
+          domElement: this.__video
+        });
+        this.setVideo(URL.createObjectURL(file));
+      }
+    }
+  }, {
+    key: 'setImage',
+    value: function setImage(url, isAnimated) {
+      var _this2 = this;
+      if (this.__skipSetImage) {
+        this.__skipSetImage = false;
+        return;
+      }
+      this.__isVideo = false;
+      this.__isAnimated = isAnimated;
+      if (isAnimated) {
+        this.__img.src = '';
+        this.__img.style.display = 'none';
+        this.__gifImg.src = url;
+        if (this.__glGif.get_canvas()) {
+          this.__glGif.get_canvas().style.display = 'block';
+        }
+        this.__glGif.load(function (err) {
+          if (!err) {
+            _this2.__glGif.play();
+            if (_this2.__gifNeedsInitializing) {
+              _this2.__gifNeedsInitializing = false;
+              _this2.__skipSetImage = true;
+              _this2.setValue({
+                url: url,
+                type: 'gif',
+                domElement: _this2.__glGif.get_canvas()
+              });
+            }
+          }
+        });
+      } else {
+        if (this.__glGif.get_canvas()) {
+          this.__glGif.get_canvas().style.display = 'none';
+        }
+        this.__img.src = url;
+        this.__img.style.display = 'block';
+      }
+      this.__video.style.display = 'none';
+      this.__video.src = '';
+    }
+  }, {
+    key: 'setVideo',
+    value: function setVideo(url) {
+      this.__isVideo = true;
+      this.__isAnimated = true;
+      this.__video.src = url;
+      this.__video.play();
+      this.__video.loop = true;
+      this.__video.volume = 0;
+      this.__img.src = 'data:image/gif;base64,R0lGODlhAQABAAAAACwAAAAAAQABAAA=';
+      this.__img.style.display = 'none';
+      if (this.__glGif.get_canvas()) {
+        this.__glGif.get_canvas().style.display = 'none';
+      }
+      this.__video.style.display = 'block';
+    }
+  }, {
+    key: 'addSwatch',
+    value: function addSwatch(src, videoSrc) {
+      var _this3 = this;
+      var swatch = this.__swatches.appendChild(document.createElement('img'));
+      swatch.src = src;
+      swatch.videoSrc = videoSrc;
+      swatch.className = 'swatch';
+      dom.bind(swatch, 'click', function () {
+        if (videoSrc) {
+          _this3.setValue({
+            url: videoSrc,
+            type: 'video',
+            domElement: _this3.__video
+          });
+          _this3.setVideo(videoSrc);
+        } else {
+          var isAnimated = src.split('.').pop() === 'gif';
+          if (isAnimated) {
+            if (_this3.__gifNeedsInitializing) {
+              _this3.setImage(url, true);
+            } else {
+              _this3.setValue({
+                url: src,
+                type: 'gif',
+                domElement: _this3.__glGif.get_canvas()
+              });
+            }
+          } else {
+            _this3.setValue({
+              url: src,
+              type: 'image',
+              domElement: _this3.__img
+            });
+          }
+        }
+      });
+    }
+  }]);
+  return ImageController;
+}(Controller);
+
 var css = {
   load: function load(url, indoc) {
     var doc = indoc || document;
@@ -1663,7 +2704,7 @@ var CenteredDiv = function () {
   return CenteredDiv;
 }();
 
-var styleSheet = ___$insertStyle(".dg ul{list-style:none;margin:0;padding:0;width:100%;clear:both}.dg.ac{position:fixed;top:0;left:0;right:0;height:0;z-index:0}.dg:not(.ac) .main{overflow:hidden}.dg.main{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear}.dg.main.taller-than-window{overflow-y:auto}.dg.main.taller-than-window .close-button{opacity:1;margin-top:-1px;border-top:1px solid #2c2c2c}.dg.main ul.closed .close-button{opacity:1 !important}.dg.main:hover .close-button,.dg.main .close-button.drag{opacity:1}.dg.main .close-button{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear;border:0;line-height:19px;height:20px;cursor:pointer;text-align:center;background-color:#000}.dg.main .close-button.close-top{position:relative}.dg.main .close-button.close-bottom{position:absolute}.dg.main .close-button:hover{background-color:#111}.dg.a{float:right;margin-right:15px;overflow-y:visible}.dg.a.has-save>ul.close-top{margin-top:0}.dg.a.has-save>ul.close-bottom{margin-top:27px}.dg.a.has-save>ul.closed{margin-top:0}.dg.a .save-row{top:0;z-index:1002}.dg.a .save-row.close-top{position:relative}.dg.a .save-row.close-bottom{position:fixed}.dg li{-webkit-transition:height .1s ease-out;-o-transition:height .1s ease-out;-moz-transition:height .1s ease-out;transition:height .1s ease-out;-webkit-transition:overflow .1s linear;-o-transition:overflow .1s linear;-moz-transition:overflow .1s linear;transition:overflow .1s linear}.dg li:not(.folder){cursor:auto;height:27px;line-height:27px;padding:0 4px 0 5px}.dg li.folder{padding:0;border-left:4px solid transparent}.dg li.title{cursor:pointer;margin-left:-4px}.dg .closed li:not(.title),.dg .closed ul li,.dg .closed ul li>*{height:0;overflow:hidden;border:0}.dg .cr{clear:both;padding-left:3px;height:27px;overflow:hidden}.dg .property-name{cursor:default;float:left;clear:left;width:40%;overflow:hidden;text-overflow:ellipsis}.dg .c{float:left;width:60%;position:relative}.dg .c input[type=text]{border:0;margin-top:4px;padding:3px;width:100%;float:right}.dg .has-slider input[type=text]{width:30%;margin-left:0}.dg .slider{float:left;width:66%;margin-left:-5px;margin-right:0;height:19px;margin-top:4px}.dg .slider-fg{height:100%}.dg .c input[type=checkbox]{margin-top:7px}.dg .c select{margin-top:5px}.dg .cr.function,.dg .cr.function .property-name,.dg .cr.function *,.dg .cr.boolean,.dg .cr.boolean *{cursor:pointer}.dg .cr.color{overflow:visible}.dg .selector{display:none;position:absolute;margin-left:-9px;margin-top:23px;z-index:10}.dg .c:hover .selector,.dg .selector.drag{display:block}.dg li.save-row{padding:0}.dg li.save-row .button{display:inline-block;padding:0px 6px}.dg.dialogue{background-color:#222;width:460px;padding:15px;font-size:13px;line-height:15px}#dg-new-constructor{padding:10px;color:#222;font-family:Monaco, monospace;font-size:10px;border:0;resize:none;box-shadow:inset 1px 1px 1px #888;word-wrap:break-word;margin:12px 0;display:block;width:440px;overflow-y:scroll;height:100px;position:relative}#dg-local-explain{display:none;font-size:11px;line-height:17px;border-radius:3px;background-color:#333;padding:8px;margin-top:10px}#dg-local-explain code{font-size:10px}#dat-gui-save-locally{display:none}.dg{color:#eee;font:11px 'Lucida Grande', sans-serif;text-shadow:0 -1px 0 #111}.dg.main::-webkit-scrollbar{width:5px;background:#1a1a1a}.dg.main::-webkit-scrollbar-corner{height:0;display:none}.dg.main::-webkit-scrollbar-thumb{border-radius:5px;background:#676767}.dg li:not(.folder){background:#1a1a1a;border-bottom:1px solid #2c2c2c}.dg li.save-row{line-height:25px;background:#dad5cb;border:0}.dg li.save-row select{margin-left:5px;width:108px}.dg li.save-row .button{margin-left:5px;margin-top:1px;border-radius:2px;font-size:9px;line-height:7px;padding:4px 4px 5px 4px;background:#c5bdad;color:#fff;text-shadow:0 1px 0 #b0a58f;box-shadow:0 -1px 0 #b0a58f;cursor:pointer}.dg li.save-row .button.gears{background:#c5bdad url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAANCAYAAAB/9ZQ7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAQJJREFUeNpiYKAU/P//PwGIC/ApCABiBSAW+I8AClAcgKxQ4T9hoMAEUrxx2QSGN6+egDX+/vWT4e7N82AMYoPAx/evwWoYoSYbACX2s7KxCxzcsezDh3evFoDEBYTEEqycggWAzA9AuUSQQgeYPa9fPv6/YWm/Acx5IPb7ty/fw+QZblw67vDs8R0YHyQhgObx+yAJkBqmG5dPPDh1aPOGR/eugW0G4vlIoTIfyFcA+QekhhHJhPdQxbiAIguMBTQZrPD7108M6roWYDFQiIAAv6Aow/1bFwXgis+f2LUAynwoIaNcz8XNx3Dl7MEJUDGQpx9gtQ8YCueB+D26OECAAQDadt7e46D42QAAAABJRU5ErkJggg==) 2px 1px no-repeat;height:7px;width:8px}.dg li.save-row .button:hover{background-color:#bab19e;box-shadow:0 -1px 0 #b0a58f}.dg li.folder{border-bottom:0}.dg li.title{padding-left:16px;background:#000 url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 6px 10px no-repeat;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.2)}.dg .closed li.title{background-image:url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlGIWqMCbWAEAOw==)}.dg .cr.boolean{border-left:3px solid #806787}.dg .cr.color{border-left:3px solid}.dg .cr.function{border-left:3px solid #e61d5f}.dg .cr.number{border-left:3px solid #2FA1D6}.dg .cr.number input[type=text]{color:#2FA1D6}.dg .cr.string{border-left:3px solid #1ed36f}.dg .cr.string input[type=text]{color:#1ed36f}.dg .cr.function:hover,.dg .cr.boolean:hover{background:#111}.dg .c input[type=text]{background:#303030;outline:none}.dg .c input[type=text]:hover{background:#3c3c3c}.dg .c input[type=text]:focus{background:#494949;color:#fff}.dg .c .slider{background:#303030;cursor:ew-resize}.dg .c .slider-fg{background:#2FA1D6;max-width:100%}.dg .c .slider:hover{background:#3c3c3c}.dg .c .slider:hover .slider-fg{background:#44abda}\n");
+var styleSheet = ___$insertStyle(".dg ul{list-style:none;margin:0;padding:0;width:100%;clear:both}.dg.ac{position:fixed;top:0;left:0;right:0;height:0;z-index:0}.dg:not(.ac) .main{overflow:hidden}.dg.main{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear}.dg.main.taller-than-window{overflow-y:auto}.dg.main.taller-than-window .close-button{opacity:1;margin-top:-1px;border-top:1px solid #2c2c2c}.dg.main ul.closed .close-button{opacity:1 !important}.dg.main:hover .close-button,.dg.main .close-button.drag{opacity:1}.dg.main .close-button{-webkit-transition:opacity .1s linear;-o-transition:opacity .1s linear;-moz-transition:opacity .1s linear;transition:opacity .1s linear;border:0;line-height:19px;height:20px;cursor:pointer;text-align:center;background-color:#000}.dg.main .close-button.close-top{position:relative}.dg.main .close-button.close-bottom{position:absolute}.dg.main .close-button:hover{background-color:#111}.dg.a{float:right;margin-right:15px;overflow-y:visible}.dg.a.has-save>ul.close-top{margin-top:0}.dg.a.has-save>ul.close-bottom{margin-top:27px}.dg.a.has-save>ul.closed{margin-top:0}.dg.a .save-row{top:0;z-index:1002}.dg.a .save-row.close-top{position:relative}.dg.a .save-row.close-bottom{position:fixed}.dg li{-webkit-transition:height .1s ease-out;-o-transition:height .1s ease-out;-moz-transition:height .1s ease-out;transition:height .1s ease-out;-webkit-transition:overflow .1s linear;-o-transition:overflow .1s linear;-moz-transition:overflow .1s linear;transition:overflow .1s linear}.dg li:not(.folder){cursor:auto;height:27px;line-height:27px;padding:0 4px 0 5px}.dg li.folder{padding:0;border-left:4px solid transparent}.dg li.title{cursor:pointer;margin-left:-4px}.dg .closed li:not(.title),.dg .closed ul li,.dg .closed ul li>*{height:0;overflow:hidden;border:0}.dg .cr{clear:both;padding-left:3px;height:27px;overflow:hidden}.dg .property-name{cursor:default;float:left;clear:left;width:40%;overflow:hidden;text-overflow:ellipsis}.dg .c{float:left;width:60%;position:relative}.dg .c input[type=text]{border:0;margin-top:4px;padding:3px;width:100%;float:right}.dg .has-slider input[type=text]{width:30%;margin-left:0}.dg .slider{float:left;width:66%;margin-left:-5px;margin-right:0;height:19px;margin-top:4px}.dg .slider-fg{height:100%}.dg .c input[type=checkbox]{margin-top:7px}.dg .c select{margin-top:5px}.dg .cr.function,.dg .cr.function .property-name,.dg .cr.function *,.dg .cr.boolean,.dg .cr.boolean *{cursor:pointer}.dg .cr.color{overflow:visible}.dg .cr.image{height:100px}.dg .selector{display:none;position:absolute;margin-left:-9px;margin-top:23px;z-index:10}.dg .c:hover .selector,.dg .selector.drag{display:block}.dg li.save-row{padding:0}.dg li.save-row .button{display:inline-block;padding:0px 6px}.dg.dialogue{background-color:#222;width:460px;padding:15px;font-size:13px;line-height:15px}#dg-new-constructor{padding:10px;color:#222;font-family:Monaco, monospace;font-size:10px;border:0;resize:none;box-shadow:inset 1px 1px 1px #888;word-wrap:break-word;margin:12px 0;display:block;width:440px;overflow-y:scroll;height:100px;position:relative}#dg-local-explain{display:none;font-size:11px;line-height:17px;border-radius:3px;background-color:#333;padding:8px;margin-top:10px}#dg-local-explain code{font-size:10px}#dat-gui-save-locally{display:none}.dg{color:#eee;font:11px 'Lucida Grande', sans-serif;text-shadow:0 -1px 0 #111}.dg.main::-webkit-scrollbar{width:5px;background:#1a1a1a}.dg.main::-webkit-scrollbar-corner{height:0;display:none}.dg.main::-webkit-scrollbar-thumb{border-radius:5px;background:#676767}.dg li:not(.folder){background:#1a1a1a;border-bottom:1px solid #2c2c2c}.dg li.save-row{line-height:25px;background:#dad5cb;border:0}.dg li.save-row select{margin-left:5px;width:108px}.dg li.save-row .button{margin-left:5px;margin-top:1px;border-radius:2px;font-size:9px;line-height:7px;padding:4px 4px 5px 4px;background:#c5bdad;color:#fff;text-shadow:0 1px 0 #b0a58f;box-shadow:0 -1px 0 #b0a58f;cursor:pointer}.dg li.save-row .button.gears{background:#c5bdad url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAANCAYAAAB/9ZQ7AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAQJJREFUeNpiYKAU/P//PwGIC/ApCABiBSAW+I8AClAcgKxQ4T9hoMAEUrxx2QSGN6+egDX+/vWT4e7N82AMYoPAx/evwWoYoSYbACX2s7KxCxzcsezDh3evFoDEBYTEEqycggWAzA9AuUSQQgeYPa9fPv6/YWm/Acx5IPb7ty/fw+QZblw67vDs8R0YHyQhgObx+yAJkBqmG5dPPDh1aPOGR/eugW0G4vlIoTIfyFcA+QekhhHJhPdQxbiAIguMBTQZrPD7108M6roWYDFQiIAAv6Aow/1bFwXgis+f2LUAynwoIaNcz8XNx3Dl7MEJUDGQpx9gtQ8YCueB+D26OECAAQDadt7e46D42QAAAABJRU5ErkJggg==) 2px 1px no-repeat;height:7px;width:8px}.dg li.save-row .button:hover{background-color:#bab19e;box-shadow:0 -1px 0 #b0a58f}.dg li.folder{border-bottom:0}.dg li.title{padding-left:16px;background:#000 url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlI+hKgFxoCgAOw==) 6px 10px no-repeat;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.2)}.dg .closed li.title{background-image:url(data:image/gif;base64,R0lGODlhBQAFAJEAAP////Pz8////////yH5BAEAAAIALAAAAAAFAAUAAAIIlGIWqMCbWAEAOw==)}.dg .cr.boolean{border-left:3px solid #806787}.dg .cr.color{border-left:3px solid}.dg .cr.function{border-left:3px solid #e61d5f}.dg .cr.number{border-left:3px solid #2FA1D6}.dg .cr.number input[type=text]{color:#2FA1D6}.dg .cr.string{border-left:3px solid #1ed36f}.dg .cr.string input[type=text]{color:#1ed36f}.dg .cr.function:hover,.dg .cr.boolean:hover{background:#111}.dg .c input[type=text]{background:#303030;outline:none}.dg .c input[type=text]:hover{background:#3c3c3c}.dg .c input[type=text]:focus{background:#494949;color:#fff}.dg .c .slider{background:#303030;cursor:ew-resize}.dg .c .slider-fg{background:#2FA1D6;max-width:100%}.dg .c .slider:hover{background:#3c3c3c}.dg .c .slider:hover .slider-fg{background:#44abda}.image-picker{position:relative}.image-picker .content{width:150px;height:100px;cursor:pointer;transition:opacity 0.2s}.image-picker .content.dragover{opacity:0.8}.image-picker input{display:none}.image-picker:hover .image-swatches{opacity:1.0;visibility:visible;transition-delay:0s}.image-picker .image-swatches{position:absolute;z-index:2;height:100%;visibility:hidden;opacity:0;transition:visibility 0s linear 0.2s,opacity 0.2s linear;width:100%;font-size:0;text-align:left;background-color:#000}.image-picker .image-swatches .swatch{background-color:black;display:inline-block;height:50px;cursor:pointer;float:left}.image-picker .camera-button{width:40px;background-image:url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFgAAAAwCAYAAACVMr0DAAACmklEQVR4Ae3bP0iVURjH8fuWQ9BQEC22BJGY9IcQcixyEXJpcHOKcHEIqsGgwaGhBoscWhqC1kRcHBoSa3ERCgyChmgsIiLEIUrt+1y9x/fy/tPr+0znd+Dne+5zznsu9+PLGa7HZJPWiLQlNO+PfsD7DWJfX8COTwCbw0EBOwGDe52l3wm4ZmBgz5E3LDtLTgm4JmBQj5FnLPeeXG0t29Xq6NqZAKhmOE4myVHS1gTcxrG3F+AOcccT0lt0p4CLZErqwPYw/JhcK5nWHNIeXCWUGgf2CJmi9JFU4tqteoJNoaKBag/iTfKAHK+Y3jYs4DaO7AtwL1N9Si5kR6sr2iIKjIA9SV4xvEg6wrWl9QSbQqqBepiX98gdcig11FFXwNtswNo3a6PkIeneLu/7ImAIwR3gYvusXWttUe/BwHaTl4gukdpx7TeV8AbRfuHO518jtud6te9RP8GoeuI2f2mxA3s9uWFdAQcKn46AfVzDqgIOFD4dAfu4hlUFHCh8OgL2cQ2rCjhQ+HQE7OMaVhVwoPDpCNjHNawq4EDh04kdeNmHdWfV2IEvQXGDfNshqbcXNTDnrzfJC0jtIMkj8qde3kYjauAWJsirZILXfWSuVa/jKuCUIshfiJ3rHSQrqaGOuwLOoQN5gfJFMk5+5kzZdUnABVQgrxM773uaTJN/BVNLywIu5eGvwknyi9xi2nnyumJ6ZljAGZL8AsifyBCjw+Rz/qxsVcBZk9IKyPNMOEvukt+lkxkUcJVQzjjIf4mdE7b9+TnZyJnWLAm4SGYXdZB/kDGm9pO3ebcIOE9ljzWQP5Ar3DZCvpLQBBwo9t8BeYZVzpD7xI5lxX02DRC3fwbnyN8JfG9HffjPE9ieXmvaIrYc3H7+B2I6hCujfhfYAAAAAElFTkSuQmCC\");background-repeat:no-repeat;background-position:center center;background-size:22px 12px}.image-picker .new-image-button{width:40px;background-image:url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFcAAABXCAYAAABxyNlsAAAAAXNSR0IArs4c6QAAAa1JREFUeAHt3EFuwlAUQ1E+6r6brjxkBVdfzxgi9Xbq2KDDEzO6Hjf+O8/zoLe31sKcup/I1ideZPoaF+5J3Qv31u//SW/eLBMQN/PDtrjIk4XiZn7YFhd5slDczA/b4iJPFoqb+WFbXOTJQnEzP2yLizxZKG7mh21xkScLxc38sC0u8mShuJkftsVFniwUN/PDtrjIk4XiZn7YFhd5slDczA/b4iJPFoqb+WFbXOTJQnEzP2yLizxZKG7mh21xkScLxc38sC0u8mShuJkftsVFniwUN/PDtrjIk4XiZn7YFhd5slDczA/b6/o10u/1xIFPGU4EDi93wrbZEXcTavKYuBO1zY64m1CTx8SdqG12xN2Emjwm7kRts3Prn9T7LwE2P8X/+JhfC8VPXVxxiwLFaS9X3KJAcdrLFbcoUJz2csUtChSnvVxxiwLFaS9X3KJAcdrLFbcoUJz2csUtChSnvVxxiwLFaS9X3KJAcdrLFbcoUJz2csUtChSnvVxxiwLFaS9X3KJAcdrLFbcoUJz2csUtChSnvVxxiwLFaS+3iPtT3H7H9N87Rr618QK/DhGq+EkZwAAAAABJRU5ErkJggg==\");background-repeat:no-repeat;background-position:center center;background-size:22px 22px}\n");
 
 css.inject(styleSheet);
 var CSS_NAMESPACE = 'dg';
@@ -1941,6 +2982,12 @@ Common.extend(GUI.prototype,
   addColor: function addColor(object, property) {
     return _add(this, object, property, {
       color: true
+    });
+  },
+  addImage: function addImage(object, property) {
+    return _add(this, object, property, {
+      factoryArgs: Array.prototype.slice.call(arguments, 2),
+      image: true
     });
   },
   remove: function remove(controller) {
@@ -2278,6 +3325,8 @@ function _add(gui, object, property, params) {
   var controller = void 0;
   if (params.color) {
     controller = new ColorController(object, property);
+  } else if (params.image) {
+    controller = new ImageController(object, property, params.factoryArgs[0]);
   } else {
     var factoryArgs = [object, property].concat(params.factoryArgs);
     controller = ControllerFactory.apply(gui, factoryArgs);
@@ -2297,6 +3346,8 @@ function _add(gui, object, property, params) {
   dom.addClass(li, GUI.CLASS_CONTROLLER_ROW);
   if (controller instanceof ColorController) {
     dom.addClass(li, 'color');
+  } else if (controller instanceof ImageController) {
+    dom.addClass(li, 'image');
   } else {
     dom.addClass(li, _typeof(controller.getValue()));
   }
@@ -2485,7 +3536,8 @@ var index = {
     NumberControllerBox: NumberControllerBox,
     NumberControllerSlider: NumberControllerSlider,
     FunctionController: FunctionController,
-    ColorController: ColorController
+    ColorController: ColorController,
+    ImageController: ImageController
   },
   dom: {
     dom: dom
