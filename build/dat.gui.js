@@ -1036,7 +1036,7 @@ function numDecimals(x) {
   if (_x.indexOf('.') > -1) {
     return _x.length - _x.indexOf('.') - 1;
   }
-  return 1;
+  return 2;
 }
 var NumberController = function (_Controller) {
   inherits(NumberController, _Controller);
