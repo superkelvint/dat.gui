@@ -1244,8 +1244,13 @@ var FunctionController = function (_Controller) {
     _this2.__button = document.createElement('div');
     _this2.__button.innerHTML = text === undefined ? 'Fire' : text;
     dom.bind(_this2.__button, 'click', function (e) {
+      var _this3 = this;
       e.preventDefault();
       _this.fire();
+      dom.addClass(this.__button.parentElement.parentElement.parentElement, 'function--active');
+      setTimeout(function () {
+        dom.removeClass(_this3.__button.parentElement.parentElement.parentElement, 'function--active');
+      }, 100);
       return false;
     });
     dom.addClass(_this2.__button, 'button');
