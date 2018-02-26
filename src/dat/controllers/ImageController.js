@@ -22,12 +22,18 @@ class ImageController extends Controller {
 
     if (navigator.getUserMedia) {
       this.__camera = this.__swatches.appendChild(document.createElement('div'));
-      this.__camera.innerHTML = '&nbsp';
+      this.__cameraTitle = this.__camera.appendChild(document.createElement('span'));
+      this.__cameraTitle.innerHTML = "Webcam";
+      this.__cameraIcon = this.__camera.appendChild(document.createElement('div'));
+      dom.addClass(this.__cameraIcon, 'camera-icon');
       dom.addClass(this.__camera, 'camera-button swatch');
     }
     this.__plus = this.__swatches.appendChild(document.createElement('div'));
+    this.__plusTitle = this.__plus.appendChild(document.createElement('span'));
+    this.__plusTitle.innerHTML = "Image";
+    this.__plusIcon = this.__plus.appendChild(document.createElement('div'));
+    dom.addClass(this.__plusIcon, 'new-image-icon');
     dom.addClass(this.__plus, 'new-image-button swatch');
-    this.__plus.innerHTML = '&nbsp';
 
     defaultOptions.forEach((option) => {
       this.addSwatch(option.src, option.videoSrc);
