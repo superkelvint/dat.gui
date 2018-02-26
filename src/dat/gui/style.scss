@@ -226,11 +226,8 @@ $input-color: lighten($background-color, 8.5%);
   }
 
   .image-swatches {
-    position: absolute;
     z-index:2;
     height: 100%;
-    visibility:hidden;
-    opacity:0;
     transition:visibility 0s linear 0.2s,opacity 0.2s linear;
     width: 100%;
     font-size: 0;
