@@ -24,7 +24,7 @@ class ImageController extends Controller {
     dom.addClass(this.__swatchButtons, 'swatch-buttons');
 
     this.__swatchImages = this.__swatches.appendChild(document.createElement('div'));
-    dom.addClass(this.__swatchButtons, 'swatch-images');
+    dom.addClass(this.__swatchImages, 'swatch-images');
 
     if (navigator.getUserMedia) {
       this.__camera = this.__swatchButtons.appendChild(document.createElement('div'));

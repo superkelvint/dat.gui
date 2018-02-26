@@ -2318,7 +2318,7 @@ var ImageController = function (_Controller) {
     _this.__swatchButtons = _this.__swatches.appendChild(document.createElement('div'));
     dom.addClass(_this.__swatchButtons, 'swatch-buttons');
     _this.__swatchImages = _this.__swatches.appendChild(document.createElement('div'));
-    dom.addClass(_this.__swatchButtons, 'swatch-images');
+    dom.addClass(_this.__swatchImages, 'swatch-images');
     if (navigator.getUserMedia) {
       _this.__camera = _this.__swatchButtons.appendChild(document.createElement('div'));
       _this.__cameraTitle = _this.__camera.appendChild(document.createElement('span'));
