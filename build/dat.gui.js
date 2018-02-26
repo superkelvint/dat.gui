@@ -2326,6 +2326,7 @@ var ImageController = function (_Controller) {
       _this.__cameraTitle = _this.__camera.appendChild(document.createElement('span'));
       _this.__cameraTitle.innerHTML = "Webcam";
       _this.__cameraIcon = _this.__camera.appendChild(document.createElement('div'));
+      _this.__cameraIcon.innerHTML = 'nbsp;';
       dom.addClass(_this.__cameraIcon, 'camera-icon');
       dom.addClass(_this.__camera, 'camera-button swatch');
     }
@@ -2333,6 +2334,7 @@ var ImageController = function (_Controller) {
     _this.__plusTitle = _this.__plus.appendChild(document.createElement('span'));
     _this.__plusTitle.innerHTML = "Image";
     _this.__plusIcon = _this.__plus.appendChild(document.createElement('div'));
+    _this.__plusIcon.innerHTML = 'nbsp;';
     dom.addClass(_this.__plusIcon, 'new-image-icon');
     dom.addClass(_this.__plus, 'new-image-button swatch');
     defaultOptions.forEach(function (option) {
