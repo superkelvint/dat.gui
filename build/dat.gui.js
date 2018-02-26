@@ -2321,8 +2321,12 @@ var ImageController = function (_Controller) {
     _this.__img.crossOrigin = 'anonymous';
     _this.__video = _this.__controlContainer.appendChild(document.createElement('video'));
     _this.__input = _this.__controlContainer.appendChild(document.createElement('input'));
+    _this.__swatchButtons = _this.__swatches.appendChild(document.createElement('div'));
+    dom.addClass(_this.__swatchButtons, 'swatch-buttons');
+    _this.__swatchImages = _this.__swatches.appendChild(document.createElement('div'));
+    dom.addClass(_this.__swatchButtons, 'swatch-images');
     if (navigator.getUserMedia) {
-      _this.__camera = _this.__swatches.appendChild(document.createElement('div'));
+      _this.__camera = _this.__swatchButtons.appendChild(document.createElement('div'));
       _this.__cameraTitle = _this.__camera.appendChild(document.createElement('span'));
       _this.__cameraTitle.innerHTML = "Webcam";
       _this.__cameraIcon = _this.__camera.appendChild(document.createElement('div'));
@@ -2330,7 +2334,7 @@ var ImageController = function (_Controller) {
       dom.addClass(_this.__cameraIcon, 'camera-icon');
       dom.addClass(_this.__camera, 'camera-button swatch');
     }
-    _this.__plus = _this.__swatches.appendChild(document.createElement('div'));
+    _this.__plus = _this.__swatchButtons.appendChild(document.createElement('div'));
     _this.__plusTitle = _this.__plus.appendChild(document.createElement('span'));
     _this.__plusTitle.innerHTML = "Image";
     _this.__plusIcon = _this.__plus.appendChild(document.createElement('div'));
@@ -2534,7 +2538,7 @@ var ImageController = function (_Controller) {
     key: 'addSwatch',
     value: function addSwatch(src, videoSrc) {
       var _this3 = this;
-      var swatch = this.__swatches.appendChild(document.createElement('img'));
+      var swatch = this.__swatchImages.appendChild(document.createElement('img'));
       swatch.src = src;
       swatch.videoSrc = videoSrc;
       swatch.className = 'swatch';

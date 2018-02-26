@@ -20,8 +20,14 @@ class ImageController extends Controller {
     this.__video = this.__controlContainer.appendChild(document.createElement('video'));
     this.__input = this.__controlContainer.appendChild(document.createElement('input'));
 
+    this.__swatchButtons = this.__swatches.appendChild(document.createElement('div'));
+    dom.addClass(this.__swatchButtons, 'swatch-buttons');
+
+    this.__swatchImages = this.__swatches.appendChild(document.createElement('div'));
+    dom.addClass(this.__swatchButtons, 'swatch-images');
+
     if (navigator.getUserMedia) {
-      this.__camera = this.__swatches.appendChild(document.createElement('div'));
+      this.__camera = this.__swatchButtons.appendChild(document.createElement('div'));
       this.__cameraTitle = this.__camera.appendChild(document.createElement('span'));
       this.__cameraTitle.innerHTML = "Webcam";
       this.__cameraIcon = this.__camera.appendChild(document.createElement('div'));
@@ -29,7 +35,7 @@ class ImageController extends Controller {
       dom.addClass(this.__cameraIcon, 'camera-icon');
       dom.addClass(this.__camera, 'camera-button swatch');
     }
-    this.__plus = this.__swatches.appendChild(document.createElement('div'));
+    this.__plus = this.__swatchButtons.appendChild(document.createElement('div'));
     this.__plusTitle = this.__plus.appendChild(document.createElement('span'));
     this.__plusTitle.innerHTML = "Image";
     this.__plusIcon = this.__plus.appendChild(document.createElement('div'));
@@ -249,7 +255,7 @@ class ImageController extends Controller {
   }
 
   addSwatch(src, videoSrc) {
-    const swatch = this.__swatches.appendChild(document.createElement('img'));
+    const swatch = this.__swatchImages.appendChild(document.createElement('img'));
     swatch.src = src;
     swatch.videoSrc = videoSrc;
     swatch.className = 'swatch';
