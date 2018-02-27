@@ -31,7 +31,6 @@ class ImageController extends Controller {
       this.__cameraTitle = this.__camera.appendChild(document.createElement('span'));
       this.__cameraTitle.innerHTML = "Webcam";
       this.__cameraIcon = this.__camera.appendChild(document.createElement('div'));
-      this.__cameraIcon.innerHTML = 'nbsp;';
       dom.addClass(this.__cameraIcon, 'camera-icon');
       dom.addClass(this.__camera, 'camera-button swatch');
     }
@@ -39,7 +38,6 @@ class ImageController extends Controller {
     this.__plusTitle = this.__plus.appendChild(document.createElement('span'));
     this.__plusTitle.innerHTML = "Image";
     this.__plusIcon = this.__plus.appendChild(document.createElement('div'));
-    this.__plusIcon.innerHTML = 'nbsp;';
     dom.addClass(this.__plusIcon, 'new-image-icon');
     dom.addClass(this.__plus, 'new-image-button swatch');
 
