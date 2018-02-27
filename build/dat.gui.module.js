@@ -2309,7 +2309,7 @@ var ImageController = function (_Controller) {
     var defaultOptions = opts;
     _this.__controlContainer = document.createElement('div');
     dom.addClass(_this.__controlContainer, 'image-picker');
-    _this.__selectedInputContainer = document.createElement('div');
+    _this.__selectedInputContainer = _this.__controlContainer.appendChild(document.createElement('div'));
     dom.addClass(_this.__selectedInputContainer, 'selected-image');
     _this.__swatches = _this.__controlContainer.appendChild(document.createElement('div'));
     dom.addClass(_this.__swatches, 'image-swatches');

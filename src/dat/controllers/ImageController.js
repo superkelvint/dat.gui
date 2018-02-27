@@ -12,7 +12,7 @@ class ImageController extends Controller {
     this.__controlContainer = document.createElement('div');
     dom.addClass(this.__controlContainer, 'image-picker');
     
-    this.__selectedInputContainer = document.createElement('div');
+    this.__selectedInputContainer = this.__controlContainer.appendChild(document.createElement('div'));
     dom.addClass(this.__selectedInputContainer, 'selected-image');
 
     this.__swatches = this.__controlContainer.appendChild(document.createElement('div'));
