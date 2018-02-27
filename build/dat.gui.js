@@ -2315,11 +2315,13 @@ var ImageController = function (_Controller) {
     var defaultOptions = opts;
     _this.__controlContainer = document.createElement('div');
     dom.addClass(_this.__controlContainer, 'image-picker');
+    _this.__selectedInputContainer = document.createElement('div');
+    dom.addClass(_this.__selectedInputContainer, 'selected-image');
     _this.__swatches = _this.__controlContainer.appendChild(document.createElement('div'));
     dom.addClass(_this.__swatches, 'image-swatches');
-    _this.__img = _this.__controlContainer.appendChild(document.createElement('img'));
+    _this.__img = _this.__selectedInputContainer.appendChild(document.createElement('img'));
     _this.__img.crossOrigin = 'anonymous';
-    _this.__video = _this.__controlContainer.appendChild(document.createElement('video'));
+    _this.__video = _this.__selectedInputContainer.appendChild(document.createElement('video'));
     _this.__input = _this.__controlContainer.appendChild(document.createElement('input'));
     _this.__swatchButtons = _this.__swatches.appendChild(document.createElement('div'));
     dom.addClass(_this.__swatchButtons, 'swatch-buttons');
@@ -2346,7 +2348,7 @@ var ImageController = function (_Controller) {
     _this.__video.crossOrigin = 'anonymous';
     _this.__video.setAttribute('playsinline', true);
     _this.__input.type = 'file';
-    _this.__gifImg = _this.__controlContainer.appendChild(document.createElement('img'));
+    _this.__gifImg = _this.__selectedInputContainer.appendChild(document.createElement('img'));
     _this.__gifImg.crossOrigin = 'anonymous';
     dom.addClass(_this.__gifImg, 'content');
     _this.__glGif = new sibgif({ gif: _this.__gifImg });

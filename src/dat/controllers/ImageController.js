@@ -11,13 +11,17 @@ class ImageController extends Controller {
 
     this.__controlContainer = document.createElement('div');
     dom.addClass(this.__controlContainer, 'image-picker');
+    
+    this.__selectedInputContainer = document.createElement('div');
+    dom.addClass(this.__selectedInputContainer, 'selected-image');
+
     this.__swatches = this.__controlContainer.appendChild(document.createElement('div'));
     dom.addClass(this.__swatches, 'image-swatches');
 
-    this.__img = this.__controlContainer.appendChild(document.createElement('img'));
+    this.__img = this.__selectedInputContainer.appendChild(document.createElement('img'));
     this.__img.crossOrigin = 'anonymous';
 
-    this.__video = this.__controlContainer.appendChild(document.createElement('video'));
+    this.__video = this.__selectedInputContainer.appendChild(document.createElement('video'));
     this.__input = this.__controlContainer.appendChild(document.createElement('input'));
 
     this.__swatchButtons = this.__swatches.appendChild(document.createElement('div'));
@@ -52,7 +56,7 @@ class ImageController extends Controller {
     this.__video.setAttribute('playsinline', true);
     this.__input.type = 'file';
 
-    this.__gifImg = this.__controlContainer.appendChild(document.createElement('img'));
+    this.__gifImg = this.__selectedInputContainer.appendChild(document.createElement('img'));
     this.__gifImg.crossOrigin = 'anonymous';
     dom.addClass(this.__gifImg, 'content');
     this.__glGif = new SuperGif({ gif: this.__gifImg });
