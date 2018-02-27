@@ -2322,17 +2322,17 @@ var ImageController = function (_Controller) {
     if (navigator.getUserMedia) {
       _this.__camera = _this.__swatchButtons.appendChild(document.createElement('div'));
       _this.__cameraTitle = _this.__camera.appendChild(document.createElement('span'));
-      _this.__cameraTitle.innerHTML = "Webcam";
+      _this.__cameraTitle.innerHTML = "Video";
       _this.__cameraIcon = _this.__camera.appendChild(document.createElement('div'));
       dom.addClass(_this.__cameraIcon, 'camera-icon');
-      dom.addClass(_this.__camera, 'camera-button swatch');
+      dom.addClass(_this.__camera, 'camera-button');
     }
     _this.__plus = _this.__swatchButtons.appendChild(document.createElement('div'));
     _this.__plusTitle = _this.__plus.appendChild(document.createElement('span'));
     _this.__plusTitle.innerHTML = "Image";
     _this.__plusIcon = _this.__plus.appendChild(document.createElement('div'));
     dom.addClass(_this.__plusIcon, 'new-image-icon');
-    dom.addClass(_this.__plus, 'new-image-button swatch');
+    dom.addClass(_this.__plus, 'new-image-button');
     defaultOptions.forEach(function (option) {
       _this.addSwatch(option.src, option.videoSrc);
     });

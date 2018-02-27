@@ -232,7 +232,7 @@ $button-height: 20px;
 
   /** make image selector row taller */
   .cr.image {
-    height: 100px;
+    max-width: 350px;
   }
 
   .selector {

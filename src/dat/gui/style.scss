@@ -226,18 +226,17 @@ $input-color: lighten($background-color, 8.5%);
   }
 
   .image-swatches {
-    z-index:2;
+    z-index: 2;
     height: 100%;
     transition:visibility 0s linear 0.2s,opacity 0.2s linear;
     width: 100%;
     text-align: left;
-    background-color: rgba(0,0,0,1.0);
     .swatch {
-      background-color: black;
       display: inline-block;
-      height: 50px;
       cursor: pointer;
-      float: left;
+      flex: 0 1 33%;
+      width: 32%;
+      margin-right: 1%;
     }
   }
 
@@ -248,6 +247,17 @@ $input-color: lighten($background-color, 8.5%);
     background-repeat: no-repeat;
     background-position: center center;
     background-size: 11px 6px;
+  }
+
+  .camera-button, .new-image-button {
+    display: flex;
+    align-items: center;
+    padding: 5px 10px;
+    background: black;
+    cursor: pointer;
+    & + & {
+      margin-right: 20px;
+    }
   }
 
   .new-image-icon {
@@ -261,6 +271,7 @@ $input-color: lighten($background-color, 8.5%);
 
   .swatch-buttons {
     display: flex;
+    margin-bottom: 15px;
   }
 
   .swatch-images {
