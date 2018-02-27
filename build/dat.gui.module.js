@@ -2344,7 +2344,7 @@ var ImageController = function (_Controller) {
     _this.__input.type = 'file';
     _this.__gifImg = _this.__selectedInputContainer.appendChild(document.createElement('img'));
     _this.__gifImg.crossOrigin = 'anonymous';
-    dom.addClass(_this.__gifImg, 'content');
+    dom.addClass(_this.__gifImg, 'content gif-img');
     _this.__glGif = new sibgif({ gif: _this.__gifImg });
     _this.__gifNeedsInitializing = true;
     _this.initializeValue();

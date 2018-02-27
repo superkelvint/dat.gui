@@ -58,7 +58,7 @@ class ImageController extends Controller {
 
     this.__gifImg = this.__selectedInputContainer.appendChild(document.createElement('img'));
     this.__gifImg.crossOrigin = 'anonymous';
-    dom.addClass(this.__gifImg, 'content');
+    dom.addClass(this.__gifImg, 'content gif-img');
     this.__glGif = new SuperGif({ gif: this.__gifImg });
     this.__gifNeedsInitializing = true;
     // this.__glGif.load();
