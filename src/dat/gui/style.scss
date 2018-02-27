@@ -205,8 +205,7 @@ $input-color: lighten($background-color, 8.5%);
 .image-picker {
   position: relative;
   .content {
-    width: 150px;
-    height: 100px;
+    height: 100%;
     cursor: pointer;
     transition: opacity 0.2s;
 
@@ -272,7 +271,7 @@ $input-color: lighten($background-color, 8.5%);
 
   .swatch-buttons {
     display: flex;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
   }
 
   .swatch-images {
@@ -281,13 +280,16 @@ $input-color: lighten($background-color, 8.5%);
   }
 
   .selected-image {
-    height: 100px;
+    height: 70px;
     & .jsgif {
       height: 100%;
     }
     & .jsgif canvas {
       height: 100%;
     }
+    margin-bottom: 10px;
+    border: 2px solid white;
+    display: inline-flex;
   }
 
   .gif-img {
