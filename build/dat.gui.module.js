@@ -2629,8 +2629,7 @@ var NumberControllerAnimator = function (_NumberController) {
     classCallCheck(this, NumberControllerAnimator);
     var _this2 = possibleConstructorReturn(this, (NumberControllerAnimator.__proto__ || Object.getPrototypeOf(NumberControllerAnimator)).call(this, object, property, params));
     var _this = _this2;
-    _this2.__buttonContainer = document.createElement('div');
-    dom.addClass(_this2.__buttonContainer, 'dg-button-container');
+    dom.addClass(_this2.domElement, 'button-container');
     _this2.__animationMode = null;
     _this2.__sineButton = document.createElement('button');
     dom.addClass(_this2.__sineButton, 'sine-button');
@@ -2638,8 +2637,6 @@ var NumberControllerAnimator = function (_NumberController) {
     dom.addClass(_this2.__sawButton, 'saw-button');
     dom.bind(_this2.__sawButton, 'click', toggleSaw);
     dom.bind(_this2.__sineButton, 'click', toggleSine);
-    _this2.__buttonContainer.appendChild(_this2.__sineButton);
-    _this2.__buttonContainer.appendChild(_this2.__sawButton);
     function toggleSaw(e) {
       e.stopPropagation();
       e.preventDefault();
@@ -2675,7 +2672,8 @@ var NumberControllerAnimator = function (_NumberController) {
       _this.__animationMode = null;
     }
     _this2.updateDisplay();
-    _this2.domElement.appendChild(_this2.__buttonContainer);
+    _this2.domElement.appendChild(_this2.__sawButton);
+    _this2.domElement.appendChild(_this2.__sineButton);
     return _this2;
   }
   return NumberControllerAnimator;

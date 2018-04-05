@@ -7,8 +7,7 @@ class NumberControllerAnimator extends NumberController {
 
     const _this = this;
 
-    this.__buttonContainer = document.createElement('div');
-    dom.addClass(this.__buttonContainer, 'dg-button-container');
+    dom.addClass(this.domElement, 'button-container');
 
     this.__animationMode = null;
 
@@ -19,9 +18,6 @@ class NumberControllerAnimator extends NumberController {
 
     dom.bind(this.__sawButton, 'click', toggleSaw);
     dom.bind(this.__sineButton, 'click', toggleSine);
-
-    this.__buttonContainer.appendChild(this.__sineButton);
-    this.__buttonContainer.appendChild(this.__sawButton);
 
     function toggleSaw(e) {
       e.stopPropagation();
@@ -64,7 +60,8 @@ class NumberControllerAnimator extends NumberController {
     }
 
     this.updateDisplay();
-    this.domElement.appendChild(this.__buttonContainer);
+    this.domElement.appendChild(this.__sawButton);
+    this.domElement.appendChild(this.__sineButton);
 
   }
 }
