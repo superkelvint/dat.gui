@@ -2623,10 +2623,62 @@ var ControllerFactory = function ControllerFactory(object, property) {
   return null;
 };
 
-function requestAnimationFrame(callback) {
+var NumberControllerAnimator = function (_NumberController) {
+  inherits(NumberControllerAnimator, _NumberController);
+  function NumberControllerAnimator(object, property, params) {
+    classCallCheck(this, NumberControllerAnimator);
+    var _this2 = possibleConstructorReturn(this, (NumberControllerAnimator.__proto__ || Object.getPrototypeOf(NumberControllerAnimator)).call(this, object, property, params));
+    var _this = _this2;
+    _this2.__animationMode = null;
+    _this2.__sineButton = document.createElement('button');
+    dom.addClass(_this2.__sineButton, 'sine-button');
+    _this2.__sawButton = document.createElement('button');
+    dom.addClass(_this2.__sawButton, 'saw-button');
+    dom.bind(_this2.__sawButton, 'click', toggleSaw);
+    dom.bind(_this2.__sineButton, 'click', toggleSine);
+    function toggleSaw(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      if (_this.__animationMode === 'saw') {
+        stopAnimating();
+      } else {
+        _this.__animationMode = 'saw';
+        animate();
+      }
+    }
+    function toggleSine(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      if (_this.__animationMode === 'sine') {
+        stopAnimating();
+      } else {
+        _this.__animationMode = 'sine';
+        animate();
+      }
+    }
+    function animate() {
+      if (_this.__animationMode === null) return;
+      var percent = void 0;
+      if (_this.__animationMode === 'sine') {
+        percent = Math.sin(Date.now() / 1000) / 2 + 0.5;
+      } else if (_this.__animationMode === 'saw') {
+        percent = Date.now() / 2000 % 1;
+      }
+      _this.setValue((_this.max - _this.min) * percent + _this.min);
+      requestAnimationFrame(animate);
+    }
+    function stopAnimating() {
+      _this.__animationMode = null;
+    }
+    return _this2;
+  }
+  return NumberControllerAnimator;
+}(NumberController);
+
+function requestAnimationFrame$1(callback) {
   setTimeout(callback, 1000 / 60);
 }
-var requestAnimationFrame$1 = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || requestAnimationFrame;
+var requestAnimationFrame$2 = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame || requestAnimationFrame$1;
 
 var CenteredDiv = function () {
   function CenteredDiv() {
@@ -3239,6 +3291,18 @@ function augmentController(gui, li, controller) {
     });
     dom.addClass(li, 'has-slider');
     controller.domElement.insertBefore(box.domElement, controller.domElement.firstElementChild);
+    var animateButtons = new NumberControllerAnimator(controller.object, controller.property, { min: controller.__min, max: controller.__max, step: controller.__step });
+    Common.each(['updateDisplay', 'onChange', 'onFinishChange', 'step'], function (method) {
+      var pc = controller[method];
+      var pb = animateButtons[method];
+      controller[method] = animateButtons[method] = function () {
+        var args = Array.prototype.slice.call(arguments);
+        pb.apply(animateButtons, args);
+        return pc.apply(controller, args);
+      };
+    });
+    dom.addClass(li, 'has-animate-buttons');
+    controller.domElement.insertAfter(animateButtons.domElement, controller.domElement.firstElementChild);
   } else if (controller instanceof NumberControllerBox) {
     var r = function r(returned) {
       if (Common.isNumber(controller.__min) && Common.isNumber(controller.__max)) {
@@ -3511,7 +3575,7 @@ function setPresetSelectIndex(gui) {
 }
 function updateDisplays(controllerArray) {
   if (controllerArray.length !== 0) {
-    requestAnimationFrame$1.call(window, function () {
+    requestAnimationFrame$2.call(window, function () {
       updateDisplays(controllerArray);
     });
   }
