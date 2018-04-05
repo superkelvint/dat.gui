@@ -3302,7 +3302,7 @@ function augmentController(gui, li, controller) {
       };
     });
     dom.addClass(li, 'has-animate-buttons');
-    controller.domElement.insertAfter(animateButtons.domElement, controller.domElement.firstElementChild);
+    controller.domElement.insertBefore(animateButtons.domElement, controller.domElement.firstElementChild);
   } else if (controller instanceof NumberControllerBox) {
     var r = function r(returned) {
       if (Common.isNumber(controller.__min) && Common.isNumber(controller.__max)) {
