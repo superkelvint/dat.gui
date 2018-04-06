@@ -296,3 +296,25 @@ $input-color: lighten($background-color, 8.5%);
     visibility: hidden;
   }
 }
+
+.dg .button-container {
+
+}
+
+.dg .saw-button {
+  height: 20px;
+  width: 20px;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB4AAAAKCAYAAACjd+4vAAAAAXNSR0IArs4c6QAAAb1JREFUOBGFlL9LAmEYx7tTzqWhKJAKCmpwcel/KKKhwaUgWoKgVLAIoykqaQgKTlFPoqChhraaTaUhWlpaWvobgiDqwDzOPi/42t116gsPz/t+f7zf931PVPp6jFKpNN1sNqvUVTKZ3PSTG4ZxDL6eSCQGO/DniqKswR3E4/FDoVH9hBIjNMq8jMl3Q6ETofC70uPt8Hor1LRtuyr5jsEYIogq1LAUe3uv0GKxmCF0C98PoTFe7FHu4RvMhpMYxOnCPPG3FDu7DIW3nbicE5pWVXUP3qKWCC1LTvR/wblcbhy8Ro1RDxzgiO4aMhSwQYlv5xrwG4SetA61yre/cwlYuILz+fyopmk1wiYwPfE8C2hMp8kZimaxXq/fevgV/IbA4MlMXDt5OW8HZ7PZcCAQEDedwvBsWdY8z/MlhaJ7Q703KRQKMWSXlMKhd/CfCZ/fCAoQwxBPU+GkEUJfgOZSqdSn0wC/zFr80Bript5Q8H4OfkMPwmcIPWXecai6rg+w6T2hUQyvpmnOsumHj6NbaB9+cQmN0vHv+/hdkBoKhcIgI4S+UTPpdPrdpfhbdLppW4H/gj+I7TbQZfILpuHTuZPc3KAAAAAASUVORK5CYII=');
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+.dg .sine-button {
+  height: 20px;
+  width: 20px;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAUCAYAAADoZO9yAAAAAXNSR0IArs4c6QAAAqtJREFUSA3Flk1oE1EQx7ubhgRT00MlHhREBbFgoRFFEC9RES9KqUQxBy9ClHxBQjybY4IQJF9C1JsgKh6KHioeFA9+YPAkVsGDiB4iFasUkpA08TehG2xYNuum4sBjsjP/mfm/2X3zooz8AykUChOdTme3oige0i+rqvo5FAp9MCqlGDn/0qcUi8VTFE1A4gAk1L74r9hvtdvtK5FI5Hufb2RdiEgHbDbbHZIfWS1Qp+gbyFR5HmNNsraKD/sPViAcDs/LsyZDE0mn0+Nut/sFRScpUCPx5Xq9XkgkEvK7J3TrEJhrrD3gaEx7ls7MaYChiZRKpfsknyX5AuskO/2oJe/XwWDQ7vV6M9jjYJcbjcZUPB7/JLj+9yg208IuDwoJAlaQc0YkJGm5XG5Wq9UkJF4SN+ZwOFJiFxmKCMkuSBLafDUajVbk9yBJpVLtVqt1HjIt4gOZTGajxAxFhPjjkoSE10WblVgs9o6Y5+DtLpfrsMRZJpLL5dwkkznxc9CMkEL9QkdeiY3jvkv0aD6f38fDplqtVkkmk4tiNCMk2iw4tBxRK/Ka2Hk2050po8glspx2Op1n0HfNZiSuSwT8N7Mxf+Lo4j2eZXVF1XZEV7ZpRpNaw1vtyJoyQqT7rrAeW+MZ8EBLNbwWPyDC2K3ybTwC0iTxUUa1NqINo/iupsCfFRAbeWgINulU5QMl2Q3B83rKnPMNRrF+v59rxXYTjJ01xxBbMMKb9XWPL7tLEfAFvcPj8TyTHeslwL7d5/M9Brcf8ksMsqQezoqtd9cwrqfpiNyIchqaFLqNrlDsPfadFN+LLYB2oX+xZujGEytF9WJ6RMSZzWa3cIzlhjyhB161PYXERStDzCCn/v8ReTXMiRkKThM8AbEl9Fsutgdc3etySoxI/Vffb/sNChiOBZZnAAAAAElFTkSuQmCC');
+  background-repeat: no-repeat;
+  background-position: center center;
+}
+
+
