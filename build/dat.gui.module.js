@@ -2665,7 +2665,7 @@ var NumberControllerAnimator = function (_NumberController) {
       } else if (_this.__animationMode === 'saw') {
         percent = Date.now() / 2000 % 1;
       }
-      if (_this.__min && _this.__max) {
+      if (_this.__min !== undefined && _this.__max !== undefined) {
         _this.setValue((_this.__max - _this.__min) * percent + _this.__min);
       } else {
         _this.setValue(percent);
