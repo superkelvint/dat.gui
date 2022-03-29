@@ -43,9 +43,11 @@
     "rollup-plugin-cleanup": "^2.0.0",
     "rollup-plugin-commonjs": "^8.3.0",
     "rollup-plugin-node-resolve": "^3.0.2",
-    "rollup-plugin-sass": "^0.5.3",
+    "rollup-plugin-sass": "^0.9.3",
     "rollup-plugin-uglify": "^2.0.1",
-    "serve": "^6.4.8",
+    "serve": "^6.4.8"
+  },
+  "dependencies": {
     "wsgif": "^1.0.0"
   },
   "eslintConfig": {

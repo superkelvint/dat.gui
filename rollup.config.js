@@ -43,7 +43,7 @@ export default {
     sass({
       // insert: true makes dat.gui automatically append the styles when just the JS is included,
       // with insert: false both the JS and CSS need to explicitly be included
-      insert: false,
+      insert: true,
       output: 'build/dat.gui.css',
       options: {outputStyle: 'compressed'}
     }),
