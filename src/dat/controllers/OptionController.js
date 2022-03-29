@@ -75,10 +75,10 @@ class OptionController extends Controller {
     return toReturn;
   }
 
-  updateDisplay() {
-    if (dom.isActive(this.__select)) return this; // prevent number from updating if user is trying to manually update
+  updateDisplay(force) {
+    if (!force && dom.isActive(this.__select)) return this; // prevent number from updating if user is trying to manually update
     this.__select.value = this.getValue();
-    return super.updateDisplay();
+    return super.updateDisplay(force);
   }
 }
 
