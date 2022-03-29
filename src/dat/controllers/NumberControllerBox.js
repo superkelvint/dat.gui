@@ -97,9 +97,9 @@ class NumberControllerBox extends NumberController {
 
     // Makes it so manually specified values are not truncated.
 
-    dom.bind(this.__input, 'change', onChange);
-    dom.bind(this.__input, 'blur', onBlur);
-    dom.bind(this.__input, 'mousedown', onMouseDown);
+    dom.bind(this.__input, 'change', onChange, false, true);
+    dom.bind(this.__input, 'blur', onBlur, false, true);
+    dom.bind(this.__input, 'mousedown', onMouseDown, false, true);
     dom.bind(this.__input, mousewheelevt, onMouseWheel);
     dom.bind(this.__input, 'keydown', function(e) {
       // When pressing enter, you can be as precise as you want.
@@ -122,7 +122,7 @@ class NumberControllerBox extends NumberController {
         default:
           break;
       }
-    });
+    }, false, true);
 
     this.updateDisplay();
 
