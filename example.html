@@ -58,6 +58,44 @@
     var f3 = f2.addFolder('Nested Folder');
     f3.add(obj, 'growthSpeed');
 
+    //  alternative StringController add
+    gui.add(new dat.controllers.StringController(obj, 'message'));
+
+    //  a custom controller
+    class KnobController extends dat.controllers.Controller {
+      constructor(object, property, a, b) {
+        super(object, property);
+        const _this = this;
+        this.__input = document.createElement('input');
+        this.__input.setAttribute('type', 'number');
+        this.__input.style.width = '40%';
+        this.updateDisplay();
+        this.domElement.appendChild(this.__input);
+        var button = document.createElement('input');
+        button.setAttribute('type', 'button');
+        button.value = 'Set ' + property;
+        button.style.width = '50%';
+        button.onclick = function(e) {
+          object[property] = a + b;
+          _this.updateDisplay();
+        };
+        this.domElement.appendChild(button);
+      }
+      updateDisplay() {
+        this.__input.value = this.getValue();
+      }
+    }
+
+    const api = {
+
+      color: '#ffffff',
+      value: 0.5,
+
+    };
+
+    gui.add(new KnobController(api, 'value', 0.5, 25), {
+      liClass: 'knobby'
+    });
   </script>
 </body>
 </html>
