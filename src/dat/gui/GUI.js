@@ -986,7 +986,7 @@ function augmentController(gui, li, controller) {
 
     dom.addClass(li, 'has-slider');
     controller.domElement.insertBefore(box.domElement, controller.domElement.firstElementChild);
-
+/*
     // Add animation buttons to slider.
     const animateButtons = new NumberControllerAnimator(controller.object, controller.property,
       { min: controller.__min, max: controller.__max, step: controller.__step });
@@ -1002,7 +1002,7 @@ function augmentController(gui, li, controller) {
     });
     dom.addClass(li, 'has-animate-buttons');
     controller.domElement.insertBefore(animateButtons.domElement, controller.domElement.firstElementChild);
-
+*/
   } else if (controller instanceof NumberControllerBox) {
     const r = function(returned) {
       // Have we defined both boundaries?
