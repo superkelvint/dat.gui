@@ -177,7 +177,19 @@ $input-color: lighten($background-color, 8.5%);
         background: lighten($input-color, $active-lighten);
         color: #fff;
       }
+    }
 
+    select {
+      background: $input-color;
+      color: #fff;
+      &:hover {
+        background: lighten($input-color, $hover-lighten);
+      }
+    }
+
+    select option {
+      background: $input-color;
+      color: #fff;
     }
 
     .slider {
@@ -216,7 +228,7 @@ $input-color: lighten($background-color, 8.5%);
 
   input {
     display: none;
-  } 
+  }
 
   &:hover .image-swatches{
     opacity: 1.0;
