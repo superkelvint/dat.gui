@@ -36,6 +36,7 @@
     gui.add(obj, 'message');
     gui.add(obj, 'displayOutline');
     gui.add(obj, 'explode');
+    gui.addPlotter(obj, 'height', 10, 100, 'bar');
 
     gui.add(obj, 'maxSize').min(-10).max(10).step(0.25);
     gui.add(obj, 'height').step(5); // Increment amount
@@ -96,6 +97,12 @@
     gui.add(new KnobController(api, 'value', 0.5, 25), {
       liClass: 'knobby'
     });
+
+    function update() {
+      obj.height = 3 + 5 * Math.sin(Date.now());
+      requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update)
   </script>
 </body>
 </html>

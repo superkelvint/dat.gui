@@ -22,6 +22,7 @@ import NumberControllerSlider from '../controllers/NumberControllerSlider';
 import NumberControllerAnimator from '../controllers/NumberControllerAnimator';
 import ColorController from '../controllers/ColorController';
 import ImageController from '../controllers/ImageController';
+import PlotterController from '../controllers/PlotterController';
 import requestAnimationFrame from '../utils/requestAnimationFrame';
 import CenteredDiv from '../dom/CenteredDiv';
 import dom from '../dom/dom';
@@ -570,6 +571,42 @@ common.extend(
         {
           factoryArgs: Array.prototype.slice.call(arguments, 2),
           image: true
+        }
+      );
+    },
+
+    /**
+     * Adds a new plotter controller to the GUI.
+     *
+     * @param object
+     * @param property
+     * @param max The maximum value that the plotter will display (default 10)
+     * @param period The update interval in ms or use 0 to only update on value change (default 500)
+     * @param type Type of graph to render - line or bar (default line)
+     * @param fgColor Foreground color of the graph in hex (default #fff)
+     * @param bgColor Background color of the graph in hex (default #000)
+     * @returns {Controller} The controller that was added to the GUI.
+     * @instance
+     *
+     * @example
+     * var obj = {
+     *   value: 5
+     * };
+     * gui.addPlotter(obj, 'value', 10, 100);
+     * gui.addPlotter(obj, 'value', 10, 0);
+     */
+    addPlotter: function(object, property, max, period, type, fgColor, bgColor) {
+      return add(
+        this,
+        object,
+        property,
+        {
+          plotter: true,
+          max: max || 10,
+          period: (typeof period === 'number') ? period : 500,
+          type: type || 'line',
+          fgColor: fgColor || '#fff',
+          bgColor: bgColor || '#000'
         }
       );
     },
@@ -1141,6 +1178,9 @@ function add(gui, object, property, params) {
 
     if (params.color) {
       controller = new ColorController(object, property);
+    } else if (params.plotter) {
+      controller = new PlotterController(object, property, params);
+      gui.listen(controller);
     } else {
       const factoryArgs = [object, property].concat(params.factoryArgs);
       controller = ControllerFactory.apply(gui, factoryArgs);
@@ -1174,6 +1214,8 @@ function add(gui, object, property, params) {
     dom.addClass(li, controller.liClass);
   } else if (controller instanceof ImageController) {
     dom.addClass(li, 'image');
+  } else if (controller instanceof PlotterController) {
+    dom.addClass(li, 'plotter');
   } else {
     dom.addClass(li, typeof controller.getValue());
   }
