@@ -21,7 +21,7 @@ import NumberControllerBox from '../controllers/NumberControllerBox';
 import NumberControllerSlider from '../controllers/NumberControllerSlider';
 import NumberControllerAnimator from '../controllers/NumberControllerAnimator';
 import ColorController from '../controllers/ColorController';
-import ImageController from '../controllers/ImageController';
+// import ImageController from '../controllers/ImageController';
 import PlotterController from '../controllers/PlotterController';
 import requestAnimationFrame from '../utils/requestAnimationFrame';
 import CenteredDiv from '../dom/CenteredDiv';
@@ -557,23 +557,23 @@ common.extend(
       );
     },
 
-    /**
-     * @param object
-     * @param property
-     * @returns {dat.controllers.ImageController } THe new controller that was added.
-     * @instance
-     */
-    addImage: function(object, property) {
-      return add(
-        this,
-        object,
-        property,
-        {
-          factoryArgs: Array.prototype.slice.call(arguments, 2),
-          image: true
-        }
-      );
-    },
+    // /**
+    //  * @param object
+    //  * @param property
+    //  * @returns {dat.controllers.ImageController } THe new controller that was added.
+    //  * @instance
+    //  */
+    // addImage: function(object, property) {
+    //   return add(
+    //     this,
+    //     object,
+    //     property,
+    //     {
+    //       factoryArgs: Array.prototype.slice.call(arguments, 2),
+    //       image: true
+    //     }
+    //   );
+    // },
 
     /**
      * Adds a new plotter controller to the GUI.
@@ -1212,8 +1212,8 @@ function add(gui, object, property, params) {
     dom.addClass(li, params.liClass);
   } else if ( controller.liClass ) {
     dom.addClass(li, controller.liClass);
-  } else if (controller instanceof ImageController) {
-    dom.addClass(li, 'image');
+  // } else if (controller instanceof ImageController) {
+  //   dom.addClass(li, 'image');
   } else if (controller instanceof PlotterController) {
     dom.addClass(li, 'plotter');
   } else {
